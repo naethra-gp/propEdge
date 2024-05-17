@@ -1,0 +1,67 @@
+name: proequity
+description: "A new Flutter project."
+version: 1.0.1
+
+environment:
+  sdk: '>=3.2.6 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  get_it: ^7.6.7
+  hive_flutter: ^1.1.0
+  provider: ^6.1.2
+  path_provider: ^2.1.2
+  path: ^1.8.3
+  image_picker: ^1.0.7
+  permission_handler: ^11.2.0
+  icons_plus: ^5.0.0
+  google_fonts: ^6.1.0
+  unique_identifier: ^0.3.0
+  flutter_launcher_icons: ^0.13.1
+  easy_splash_screen: ^1.0.4
+  http: ^1.2.0
+  fluttertoast: ^8.2.4
+  panara_dialogs: ^0.1.4
+  sqflite: ^2.3.2
+  dropdown_search: ^5.0.6
+  url_launcher: ^6.2.4
+  flutter_easyloading: ^3.0.5
+  geolocator: ^11.0.0
+  custom_sliding_segmented_control: ^1.8.1
+  flutter_image_compress: ^2.1.0
+  image_cropper: ^1.5.1
+  custom_accordion: ^1.0.0
+  observe_internet_connectivity: ^1.0.2
+  advance_expansion_tile: ^1.0.2
+  google_maps_flutter: ^2.2.8
+  screenshot: ^2.1.0
+  location: ^5.0.3
+  intl: ^0.19.0
+  babstrap_settings_screen: ^0.1.6
+  simple_connection_checker: ^0.2.1
+  sqflite_sqlcipher: ^3.0.0
+  connectivity_plus: ^6.0.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/app/app-icon.png"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+    - assets/images/
+    - assets/app/
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins.ttf
+          weight: 100
