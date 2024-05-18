@@ -52,8 +52,7 @@
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
         android:requestLegacyExternalStorage="true" android:enableOnBackInvokedCallback="true">
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyBQTCOnb74S6BTgrqyTGFlaEqtALbt803c"/>
-        <activity
+      <activity
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
