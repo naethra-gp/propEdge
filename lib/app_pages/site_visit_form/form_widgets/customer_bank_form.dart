@@ -127,6 +127,7 @@ class _CustomerBankFormState extends State<CustomerBankForm> {
 
   getCustomerDetails(String propId) async {
     List property = await customerService.read();
+    print(property);
     if (property.isNotEmpty) {
       customerDetails = property
           .where((element) => element['PropId'] == propId.toString())

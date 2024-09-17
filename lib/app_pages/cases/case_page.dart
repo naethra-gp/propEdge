@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:observe_internet_connectivity/observe_internet_connectivity.dart';
 import 'package:proequity/app_pages/cases/widget/case_expansion_widget.dart';
@@ -189,7 +188,7 @@ class _CasePageState extends State<CasePage> {
                           Text(
                             "${list['ApplicationNumber']} - ${list['CustomerName']}",
                             overflow: TextOverflow.clip,
-                            style: GoogleFonts.poppins().copyWith(
+                            style: const TextStyle(
                               fontSize: 14.0,
                               color: Colors.black,
                               fontWeight: FontWeight.bold,

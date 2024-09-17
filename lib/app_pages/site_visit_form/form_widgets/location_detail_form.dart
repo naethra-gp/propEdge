@@ -83,11 +83,13 @@ class _LocationDetailFormState extends State<LocationDetailForm> {
     LocationPermission permission;
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
+      // AlertService().hideLoading();
       await Geolocator.openLocationSettings();
       return;
     }
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
+      // AlertService().hideLoading();
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         Fluttertoast.showToast(msg: 'Request Denied !');
@@ -178,7 +180,7 @@ class _LocationDetailFormState extends State<LocationDetailForm> {
             children: [
               CustomTheme.defaultSize,
               CustomTextFormField(
-                title: 'Near By Location',
+                title: 'Near By Landmark',
                 maxLines: 1,
                 controller: nearByLocationCtrl,
               ),
@@ -437,10 +439,12 @@ class _LocationDetailFormState extends State<LocationDetailForm> {
   }
 
   void getLocation() async {
+    AlertService().showLoading();
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.reduced);
     latCtrl.text = position.latitude.toString();
     lonCtrl.text = position.longitude.toString();
+    AlertService().hideLoading();
     setState(() {});
   }
 }

@@ -10,6 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../app_config/index.dart';
 import '../../../../app_services/sqlite/sqlite_services.dart';
+import '../../../../app_storage/local_storage.dart';
 import '../../../../app_theme/custom_theme.dart';
 import '../../../../app_theme/theme_files/app_color.dart';
 import '../../../../app_widgets/alert_widget.dart';
@@ -45,7 +46,7 @@ class _UploadDialogState extends State<UploadDialog> {
     imageNameCtrl.text =
         "${widget.title.toString().replaceAll(" ", "_")}_$fileName";
     imageDescCtrl.text = fileName;
-    print("pp" + photolocationList.length.toString());
+    // print("pp" + photolocationList.length.toString());
 
     setState(() {});
     super.initState();
@@ -157,7 +158,7 @@ class _UploadDialogState extends State<UploadDialog> {
                     ),
                     ListView.separated(
                       shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       itemCount: photolocationList.length,
                       itemBuilder: (context, index) {
                         return Column(
@@ -345,7 +346,7 @@ class _UploadDialogState extends State<UploadDialog> {
   compress(title, List<String> file) async {
     for (int j = 0; j < file.length; j++) {
       var img = File(file[j]);
-      print("lengthFile" + img.toString());
+      print("lengthFile -- $img");
       var result = await FlutterImageCompress.compressAndGetFile(
         img.absolute.path,
         '${img.path}_$title.jpg',
@@ -358,28 +359,26 @@ class _UploadDialogState extends State<UploadDialog> {
         File tmpFile = File(newPath);
         int sizeInBytes = file1.lengthSync();
         double sizeInMb = sizeInBytes / (1024 * 1024);
-        print("file1" + file1.toString());
         if (sizeInMb < 1) {
-          if (await Permission.manageExternalStorage.request().isGranted ||
-              await Permission.storage.request().isGranted) {
-            final Directory createFolder = Directory(
-                '/storage/emulated/0/PropEdge/$title/${widget.propId}/');
-            final checkPathExistence =
-                await Directory(createFolder.path).exists();
-            if (!checkPathExistence) {
-              await createFolder.create(recursive: true);
-            }
-            Random random = Random();
-            int randomNumber = random.nextInt(100) + 1;
-            final String fileName =
-                imageNameCtrl.text + randomNumber.toString();
-            final String fileExtension = extension(file1.path);
-            tmpFile = await tmpFile
-                .copy('${createFolder.path}$fileName$fileExtension');
-            photoLocation = "${createFolder.path}$fileName$fileExtension";
+          // Directory cf = Directory('${Constants.folder.path}/$title/${widget.propId}/');
+          // print("cf: $cf");
+          // if (!await Directory(cf.path).exists()) {
+          //   await cf.create(recursive: true);
+          // }
+          var cf =
+              await LocalStorage.getSiteVisitFolder("$title/${widget.propId}");
+          Random random = Random();
+          int randomNumber = random.nextInt(100) + 1;
+          final String fileName = imageNameCtrl.text + randomNumber.toString();
+          final String fileExtension = extension(file1.path);
+
+          if (cf != null) {
+            tmpFile = await tmpFile.copy('${cf.path}$fileName$fileExtension');
+            photoLocation = "${cf.path}$fileName$fileExtension";
             photolocationList.add(photoLocation);
-            print("photo locp" + photolocationList.toString());
             setState(() {});
+          } else {
+            AlertService().errorToast("Folder not found!");
           }
         } else {
           AlertService().errorToast("File size must be < 1 MB.");
@@ -407,7 +406,6 @@ class _UploadDialogState extends State<UploadDialog> {
           "isActive": "Y",
         };
         result = await uploadLocationMapService.insertViaApp(request);
-        print("result" + result.toString());
         if (!mounted) return;
       }
       dialogClose(context, result);
@@ -415,7 +413,6 @@ class _UploadDialogState extends State<UploadDialog> {
   }
 
   propertyUpload(context) async {
-    print("ppp" + photolocationList.length.toString());
     if (photolocationList.isEmpty) {
       AlertService().errorToast("Please Upload Picture");
       return false;
@@ -433,10 +430,8 @@ class _UploadDialogState extends State<UploadDialog> {
           "isDeleted": false,
           "isActive": "Y",
         };
-        print("PropertySketch -> $request");
         result = await sketchService.insertViaApp(request);
-        print(result);
-        if (!mounted) return;
+        // if (!mounted) return;
       }
       dialogClose(context, result);
     }
@@ -447,16 +442,6 @@ class _UploadDialogState extends State<UploadDialog> {
       AlertService().errorToast("Please Upload Picture");
       return;
     } else {
-      // var request = {
-      //   "propId": widget.propId,
-      //   "photoLocation": photoLocation.toString(),
-      //   "imageDesc": imageDescCtrl.text.toString(),
-      //   "imageName": imageNameCtrl.text.toString(),
-      //   "imageOrder": imageOrderCtrl.text.toString()
-      // };
-      // var result = await photographService.insertViaApp(request);
-      // if (!mounted) return;
-      // dialogClose(context, result);
       for (int i = 0; i < photolocationList.length; i++) {
         var request = {
           "propId": widget.propId,
@@ -470,7 +455,6 @@ class _UploadDialogState extends State<UploadDialog> {
           "isDeleted": false,
           "isActive": "Y",
         };
-        print("Photograph -> $request");
         result = await photographService.insertViaApp(request);
         if (!mounted) return;
       }
@@ -479,7 +463,6 @@ class _UploadDialogState extends State<UploadDialog> {
   }
 
   dialogClose(BuildContext context, result) {
-    print("result -> $result");
     if (result == true) {
       AlertService().successToast("Saved");
       Navigator.pop(context, true);

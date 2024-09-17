@@ -1,6 +1,17 @@
-# propedge
+# Prop Edge
 
-A new Flutter project.
+<img height="75" src="assets/images/logo.png" alt="appLogo"> 
+
+
+> A new Flutter project.
+
+## Flutter Details
+
+Flutter 3.16.9 channel stable
+Tools:
+• Dart 3.2.6
+• DevTools 2.28.5
+
 
 ## Getting Started
 

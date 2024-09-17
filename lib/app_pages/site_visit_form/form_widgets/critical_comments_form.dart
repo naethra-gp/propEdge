@@ -56,6 +56,9 @@ class _CriticalCommentsState extends State<CriticalComments> {
             children: [
               CustomTheme.defaultSize,
               CustomTextFormField(
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.newline,
+                textCapitalization: TextCapitalization.none,
                 required: true,
                 title: 'Critical Comments',
                 controller: controller,
@@ -67,7 +70,7 @@ class _CriticalCommentsState extends State<CriticalComments> {
                   }
                   return null;
                 },
-                textInputAction: TextInputAction.done,
+                // textInputAction: TextInputAction.done,
               ),
               CustomTheme.defaultSize,
               AppButton(

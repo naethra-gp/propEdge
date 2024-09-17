@@ -80,14 +80,11 @@ class CustomDropdown extends StatelessWidget {
             //   overflow: TextOverflow.ellipsis,
             //   style: CustomTheme.formFieldStyle,
             // );
-            return Container(
-              // padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text(
-                selectedItem.toString() == ""  ? "Select $title" : selectedItem,
-                overflow: TextOverflow.ellipsis,
-                style: selectedItem.toString() == "" ? CustomTheme.formHintStyle
-                : CustomTheme.formFieldStyle,
-              ),
+            return Text(
+              selectedItem.toString() == ""  ? "Select $title" : selectedItem,
+              overflow: TextOverflow.ellipsis,
+              style: selectedItem.toString() == "" ? CustomTheme.formHintStyle
+              : CustomTheme.formFieldStyle,
             );
           },
           dropdownDecoratorProps: DropDownDecoratorProps(

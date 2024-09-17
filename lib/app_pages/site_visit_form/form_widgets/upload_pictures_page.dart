@@ -58,7 +58,7 @@ class _UploadPicturesState extends State<UploadPictures> {
   getLocationMapDetails(String title) async {
     if (title == Constants.locationMapTitle) {
       locationPhotos = await locationMapService.read(widget.propId);
-      print("location pp" + locationPhotos.length.toString());
+      // print("location pp" + locationPhotos.length.toString());
     } else if (title == Constants.propertySketchTitle) {
       sketchPhotos = await sketchService.read(widget.propId);
       if (sketchPhotos.isNotEmpty) {
@@ -360,7 +360,7 @@ class _UploadPicturesState extends State<UploadPictures> {
   }
 
   Widget listOfPhotos(list, String title) {
-    print("listt" + list.toString());
+    // print("listt" + list.toString());
     return ListTile(
       onTap: () {
         Navigator.push(

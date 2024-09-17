@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 class Constants {
   // IMAGE STATIC PATH
   static const appLogo = 'assets/images/logo.png';
+  static Directory folder = Directory(
+      '/storage/emulated/0/Android/data/com.propedge.app/files/PropEdge');
   // static const Color appThemeColor = Color(0xff1980e3);
   static Color dashCaseColor = const Color(0xff1880e2);
   static Color dashTotalColor = const Color(0xffe21880);
@@ -75,10 +79,13 @@ class Constants {
   static const successMessage = "Success";
   static const errorMessage = "Try again!";
   static const maxUploadMessage = "You upload maximum photos!";
-  static const internetErrorMessage = "Please check your Internet Connection and try again!";
-  static const apiErrorMessage = "Error in Data sync, Please contact PropEdge administrator!";
+  static const internetErrorMessage =
+      "Please check your Internet Connection and try again!";
+  static const apiErrorMessage =
+      "Error in Data sync, Please contact PropEdge administrator!";
   static const apiSuccessMessage = "Data synced Successfully.";
   static const noDataSyncErrorMessage = "No data found to sync!";
-  static const limitExistsErrorMessage = "Limit Exists. Please contact PropEdge administrator!";
-
+  static const limitExistsErrorMessage =
+      "Please delete old image before upload new location map";
+  // "Limit Exists. Please contact PropEdge administrator!";
 }

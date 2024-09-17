@@ -1,5 +1,6 @@
 import 'package:advance_expansion_tile/advance_expansion_tile.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:proequity/app_config/app_constants.dart';
 import 'package:proequity/app_config/index.dart';
 import 'package:proequity/app_theme/custom_theme.dart';
@@ -29,6 +30,13 @@ class _DashboardPageState extends State<DashboardPage> {
   final TextEditingController searchController = TextEditingController();
   final GlobalKey<AdvanceExpansionTileState> globalKey = GlobalKey();
   int? expandedItemIndex;
+  Color selectedColor = const Color(0xff587CEC);
+  List activeColor = [
+    {"selected": false},
+    {"selected": false},
+    {"selected": false},
+    {"selected": false},
+  ];
 
   @override
   void dispose() {
@@ -49,6 +57,8 @@ class _DashboardPageState extends State<DashboardPage> {
   Future<void> getPropertyList() async {
     propertyList = await propertyListServices.read();
     foundProperty = await propertyListServices.read();
+
+    print("propertyList $propertyList");
     setState(() {});
   }
 
@@ -171,16 +181,24 @@ class _DashboardPageState extends State<DashboardPage> {
                                       MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: <Widget>[
-                                    homeCard('Spill',
-                                        userSummary[0]['SpillCase'].toString()),
-                                    homeCard('Today',
-                                        userSummary[0]['TodayCase'].toString()),
+                                    homeCard(
+                                        'Spill',
+                                        userSummary[0]['SpillCase'].toString(),
+                                        0),
+                                    homeCard(
+                                        'Today',
+                                        userSummary[0]['TodayCase'].toString(),
+                                        1),
                                     homeCard(
                                         'Tomorrow',
                                         userSummary[0]['TomorrowCase']
-                                            .toString()),
-                                    homeCard('Total',
-                                        userSummary[0]['CaseForVisit'].toString()),
+                                            .toString(),
+                                        2),
+                                    homeCard(
+                                        'Total',
+                                        userSummary[0]['CaseForVisit']
+                                            .toString(),
+                                        3),
                                   ],
                                 ),
                               ),
@@ -226,7 +244,6 @@ class _DashboardPageState extends State<DashboardPage> {
               CustomExpandedListView(
                 searchList: foundProperty,
                 function: (value) {
-                  print("Value -> $value");
                   if (value) {
                     Navigator.pushReplacementNamed(context, "mainPage",
                         arguments: 2);
@@ -291,52 +308,97 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget homeCard(title, count) {
+  Widget homeCard(title, count, index) {
     return Expanded(
-      child: Card(
-        elevation: 10,
-        color: const Color(0xff587CEC),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4.0),
-        ),
-        clipBehavior: Clip.antiAliasWithSaveLayer,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          title,
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    fontSize: 9,
-                                    color: Colors.white,
-                                  ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(count,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(fontSize: 16, color: Colors.white)),
-                      ],
+      child: GestureDetector(
+        onTap: () {
+          allocationClick(index, title);
+        },
+        child: Card(
+          elevation: 10,
+          color: activeColor[index]["selected"]
+              ? const Color(0xff364a91)
+              : const Color(0xff587CEC),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4.0),
+          ),
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          Text(
+                            title,
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontSize: 9,
+                                      color: Colors.white,
+                                    ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            count,
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                    ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  void allocationClick(index, title) {
+    List filteredData = [];
+    setState(() {
+      activeColor = activeColor.map((e) => {"selected": false}).toList();
+      activeColor[index]["selected"] = true;
+    });
+    for (var list in propertyList) {
+      String dov = list['DateOfVisit'].toString();
+      if (dov.isNotEmpty) {
+        String todayAsString = DateFormat("dd-MMM-yyyy").format(DateTime.now());
+        DateTime todayConvert = DateFormat("dd-MMM-yyyy").parse(todayAsString);
+        DateTime listDate = DateFormat("dd-MMM-yyyy").parse(dov);
+        int difference = todayConvert.difference(listDate).inDays;
+        if (title == "Today") {
+          if (difference == 0) {
+            filteredData.add(list);
+          }
+        } else if (title == "Spill") {
+          if (difference > 0) {
+            filteredData.add(list);
+          }
+        } else if (title == "Tomorrow") {
+          if (difference < 0) {
+            filteredData.add(list);
+          }
+        } else {
+          filteredData.add(list);
+        }
+        setState(() {
+          foundProperty = filteredData;
+        });
+      }
+    }
   }
 }

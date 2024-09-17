@@ -1,15 +1,18 @@
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:path/path.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:proequity/app_config/index.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../../app_storage/local_storage.dart';
+
 class DatabaseServices {
   static final DatabaseServices instance = DatabaseServices._init();
   DatabaseServices._init();
   static Database? _database;
-  final Directory dbFolder = Directory('/storage/emulated/0/PropEdge/DB/');
+  // final Directory dbFolder = Directory('/storage/emulated/0/PropEdge/DB/');
   static const dbName = 'PropEdge_db.db';
 
   Future<Database> get database async {
@@ -19,20 +22,44 @@ class DatabaseServices {
   }
 
   Future<Database> _initDB(String filePath) async {
-    String path1 = '';
-    String dbPath;
+    String path = "";
     if (Platform.isAndroid) {
-      if (await Permission.manageExternalStorage.request().isGranted || await Permission.storage.request().isGranted) {
-        if (!await Directory(dbFolder.path).exists()) {
-          await dbFolder.create(recursive: true);
-        }
-        path1 = join(dbFolder.path, dbName);
-      }
+      // Map<Permission, PermissionStatus> statuses = await [
+      //   Permission.storage,
+      //   Permission.manageExternalStorage,
+      // ].request();
+      // var storage = statuses[Permission.storage];
+      // var manageExternalStorage = statuses[Permission.manageExternalStorage];
+      // if (storage!.isGranted || manageExternalStorage!.isGranted) {
+      //   // do something
+      // }
+      // final deviceInfoPlugin = DeviceInfoPlugin();
+      // AndroidDeviceInfo android = await deviceInfoPlugin.androidInfo;
+      // if (Platform.isAndroid && android.version.sdkInt > 29) {
+      //   await Permission.manageExternalStorage.request();
+      // } else {
+      //   await Permission.storage.request();
+      // }
+
+      // var dbFolder = await LocalStorage.getDBFolder();
+      // if (dbFolder != null) path = join(dbFolder.path, dbName);
+      //
+      // print("File Path $path");
+      String dbPath = await getDatabasesPath();
+      path = join(dbPath, filePath);
+
+      // final file = File(path);
+      // if (await file.exists()) {
+      //   String contents = await file.readAsString();
+      //   print("File contents: $contents");
+      // } else {
+      //   print("File not found at $filePath");
+      // }
     } else if (Platform.isIOS) {
-      dbPath = await getDatabasesPath();
-      path1 = join(dbPath, filePath);
+      String dbPath = await getDatabasesPath();
+      path = join(dbPath, filePath);
     }
-    return await openDatabase(path1, version: 1, onCreate: _createDb);
+    return await openDatabase(path, version: 1, onCreate: _createDb);
   }
 
   Future<void> _createDb(Database db, int version) async {
@@ -105,6 +132,8 @@ class DatabaseServices {
             AddressMatching TEXT,
             LocalMuniciapalBody TEXT,
             NameOfMunicipalBody TEXT,
+            PropertyType TEXT,
+            TotalFloors TEXT,
             SyncStatus TEXT
         )''');
 
@@ -139,6 +168,8 @@ class DatabaseServices {
         OccupiedSince TEXT,
         RelationshipOfOccupantWithCustomer TEXT,
         StatusOfOccupancy TEXT,
+        PersonMetAtSite TEXT,
+        PersonMetAtSiteContNo TEXT,
         SyncStatus TEXT
         )''');
 

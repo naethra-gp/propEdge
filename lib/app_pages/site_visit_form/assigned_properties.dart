@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:proequity/app_services/sqlite/sqlite_services.dart';
 import 'package:proequity/app_theme/custom_theme.dart';
-import 'package:proequity/app_theme/theme_files/app_color.dart';
 import 'package:proequity/app_widgets/alert_widget.dart';
-import 'package:proequity/app_widgets/app_common/app_button_widget.dart';
 
 import '../../app_widgets/app_common/search_widget.dart';
 import '../dashboard/widget/dash_expansion_list.dart';
@@ -114,7 +112,6 @@ class _AssignedPropertiesPageState extends State<AssignedPropertiesPage> {
                 ),
               CustomExpandedListView(
                 searchList: searchList, function: (value) {
-                  print("Value -> $value");
                   Navigator.pushReplacementNamed(context, "mainPage",
                       arguments: 0);
               },

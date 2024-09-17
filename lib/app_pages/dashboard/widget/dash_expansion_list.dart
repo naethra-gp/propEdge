@@ -55,13 +55,20 @@ class DashExpansionTile extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        Text(
-          value.toString() == "" ? "-" : value.toString(),
-          style: const TextStyle(
-            fontWeight: FontWeight.w800,
-            fontSize: 12,
+        Wrap(children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            width: 200,
+            child: Text(
+              value.toString() == "" ? "-" : value.toString(),
+              textAlign: TextAlign.right,
+              style: const TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 12,
+              ),
+            ),
           ),
-        ),
+        ]),
       ],
     );
   }
@@ -113,7 +120,7 @@ class DashExpansionTile extends StatelessWidget {
       children: [
         rowDetails("Institute Name", item['InstituteName'].toString()),
         CustomTheme.defaultHeight10,
-        if (item['ContactPersonNumber'].toString().isNotEmpty) ...[
+        if (item['ContactPersonNumber'].toString().length == 10) ...[
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.start,

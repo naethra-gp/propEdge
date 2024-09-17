@@ -1,18 +1,19 @@
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:observe_internet_connectivity/observe_internet_connectivity.dart';
 import 'package:permission_handler/permission_handler.dart';
-
 import '../../../app_config/index.dart';
 import '../../../app_model/app_models.dart';
 import '../../../app_services/index.dart';
+import '../../../app_storage/local_storage.dart';
 import '../../../app_storage/secure_storage.dart';
 import '../../../app_widgets/alert_widget.dart';
-import 'package:unique_identifier/unique_identifier.dart';
 
 import '../../../app_widgets/app_common/app_button_widget.dart';
+import 'package:flutter_unique_id/flutter_unique_id.dart' as flutter_unique_id;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -35,12 +36,39 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void initState() {
+    permission();
     getDeviceId();
-    setState(() {
-      // userNameController.text = 'gnanaprakasam@naethra.com';
-      // passWordController.text = 'User@123';
-    });
+    // setState(() {
+    //   userNameController.text = 'gnanaprakasam@naethra.com';
+    //   passWordController.text = 'User@123';
+    // loginRequestModel.iMEINumber = "8ef32d2c35806173";
+    // deviceIdController.text = "8ef32d2c35806173";
+    // });
     super.initState();
+  }
+
+  permission() async {
+    // PermissionStatus status;
+    // Map<Permission, PermissionStatus> statuses = await [
+    //   Permission.phone,
+    //   Permission.camera,
+    //   Permission.location,
+    //   Permission.storage,
+    //   Permission.manageExternalStorage,
+    // ].request();
+    // print(statuses[Permission.location]);
+    // final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+    // final AndroidDeviceInfo info = await deviceInfoPlugin.androidInfo;
+    // print("sdk --> ${info.version.sdkInt}");
+    // if ((info.version.sdkInt) >= 33) {
+    //   // status = await Permission.manageExternalStorage.request();
+    //   var path = await ExternalPath.getExternalStoragePublicDirectory(
+    //       ExternalPath.DIRECTORY_DOWNLOADS);
+    //   await LocalStorage.getDBFolder();
+    //   await LocalStorage.getReimbursementFolder();
+    // } else {
+    //   status = await Permission.storage.request();
+    // }
   }
 
   @override
@@ -130,7 +158,7 @@ class _LoginPageState extends State<LoginPage> {
       child: Text(
         title,
         textAlign: TextAlign.center,
-        style: GoogleFonts.rowdies().copyWith(
+        style: TextStyle(
           fontSize: 30,
           color: Theme.of(context).primaryColor,
         ),
@@ -140,9 +168,14 @@ class _LoginPageState extends State<LoginPage> {
 
   getDeviceId() async {
     await Permission.phone.request();
-    String? serial = await UniqueIdentifier.serial;
+    String uniqueId;
+    try {
+      uniqueId = await flutter_unique_id.getUniqueId() ?? 'Unknown';
+    } on PlatformException {
+      uniqueId = 'Failed to get platform version.';
+    }
     setState(() {
-      serialNumber = serial!;
+      serialNumber = uniqueId;
       loginRequestModel.iMEINumber = serialNumber;
       deviceIdController.text = serialNumber;
     });
@@ -262,7 +295,6 @@ class _LoginPageState extends State<LoginPage> {
       style: theme.textTheme.bodyMedium?.copyWith(
           fontWeight: FontWeight.w500, color: theme.primaryColor, fontSize: 16),
       keyboardType: TextInputType.text,
-      textInputAction: TextInputAction.done,
       onSaved: (value) {
         loginRequestModel.iMEINumber = value;
       },
@@ -273,6 +305,7 @@ class _LoginPageState extends State<LoginPage> {
         return null;
       },
       decoration: InputDecoration(
+        // label: Text("Username"),
         hintText: 'Device ID',
         prefixIcon:
             Icon(LineAwesome.mobile_alt_solid, color: theme.primaryColor),
@@ -310,17 +343,28 @@ class _LoginPageState extends State<LoginPage> {
             "UserName": loginRequestModel.userName,
             "Password": loginRequestModel.password,
             "IMEINumber": loginRequestModel.iMEINumber,
+
             // "UserName": "gnanaprakasam@naethra.com",
             // "Password": "User@123",
-            // "IMEINumber": "8ef32d2c35806173"
+            // "IMEINumber": "8ef32d2c35806173",
+
+            // "UserName": "haribasker.m@naethra.com",
+            // "Password": "Hari@2016",
+            // "IMEINumber": "00000000-5675-d2ff-ffff-ffff901140ac"
+
+            // "UserName": "sriram.g@naethra.com",
+            // "Password": "User@123",
+            // "IMEINumber": "ffffffff-87f2-ca79-ffff-ffffaeafa913",
           },
           "userCredential": {
             "ClientName": Constants.clientName,
             "Password": Constants.clientPassword
           }
         };
-        if (!mounted) return;
+        // print('Login Data -> ${jsonEncode(requestData)}');
+        // if (!mounted) return;
         userServices.loginService(context, requestData).then((response) async {
+          // print("response ${jsonEncode(response)}");
           var msg = response['LoginStatus']['Message'];
           if (response['LoginStatus']['IsSuccess']) {
             alertService.hideLoading();

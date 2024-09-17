@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:proequity/app_widgets/alert_widget.dart';
 
@@ -102,13 +101,13 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
     return showDialog<String>(
       context: ctx,
       builder: (BuildContext context) => AlertDialog(
-        title: Text(
+        title: const Text(
           'Confirm',
-          style: GoogleFonts.lilitaOne().copyWith(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        content: Text(
+        content: const Text(
           'Are you sure you want to logout?',
-          style: GoogleFonts.exo2().copyWith(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         actions: <Widget>[
           TextButton(

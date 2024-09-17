@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:proequity/app_config/index.dart';
 import 'package:proequity/app_pages/index.dart';
@@ -30,7 +29,6 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     setState(() {
       _selectedIndex = widget.index;
     });
@@ -100,14 +98,14 @@ class _MainPageState extends State<MainPage> {
       context: context,
       builder: ((context) {
         return AlertDialog(
-          title: Text(
+          title: const Text(
             'Exit App',
             style:
-                GoogleFonts.lilitaOne().copyWith(fontWeight: FontWeight.bold),
+                TextStyle(fontWeight: FontWeight.bold),
           ),
-          content: Text(
+          content: const Text(
             'Are you sure you want to Exit app?',
-            style: GoogleFonts.exo2().copyWith(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
           actions: [
             TextButton(
@@ -175,7 +173,7 @@ class _MainPageState extends State<MainPage> {
               Text(
                 label.toString(),
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: 9,
                   fontWeight: FontWeight.bold,
                   color:
                   _selectedIndex == index ? theme.primaryColor : Colors.black,

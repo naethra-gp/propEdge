@@ -101,7 +101,7 @@ class _MasterDropdownWidgetState extends State<MasterDropdownWidget> {
               children: <Widget>[
                 Icon(
                   Icons.cloud_download_outlined,
-                  size: 25,
+                  size: 22,
                   color: Colors.redAccent,
                 ),
                 Text(

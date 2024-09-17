@@ -61,10 +61,4 @@ class BoundaryServices {
     final db = await DatabaseServices.instance.database;
     return await db.rawQuery("SELECT * FROM ${Constants.boundaryDetails} WHERE PropId=$id");
   }
-
-  deleteByPropId(List request) async {
-    final db = await DatabaseServices.instance.database;
-    return await db.rawDelete(
-        "DELETE FROM ${Constants.boundaryDetails} WHERE PropId = ?", request);
-  }
 }

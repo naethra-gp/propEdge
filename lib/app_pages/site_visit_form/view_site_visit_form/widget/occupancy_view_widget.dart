@@ -41,6 +41,16 @@ class OccupancyViewWidget extends StatelessWidget {
           value: removeNull(details[0]['OccupiedSince'].toString()),
         ),
         CustomTheme.defaultHeight10,
+        ListViewWidget(
+          label: "Person Met At Site",
+          value: removeNull(details[0]['PersonMetAtSite'].toString()),
+        ),
+        CustomTheme.defaultHeight10,
+        ListViewWidget(
+          label: "Person Met At Site Contact No",
+          value: removeNull(details[0]['PersonMetAtSiteContNo'].toString()),
+        ),
+        CustomTheme.defaultHeight10,
       ],
     );
   }

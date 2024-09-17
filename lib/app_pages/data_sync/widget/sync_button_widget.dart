@@ -20,7 +20,7 @@ class SyncButtonWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Icon(icons, size: 25, color: label == "Upload" ? Colors.green : Colors.redAccent,),
+          Icon(icons, size: 22, color: label == "Upload" ? Colors.green : Colors.redAccent,),
           Text(
             label,
             style: TextStyle(

@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:proequity/app_config/app_constants.dart';
+import 'package:proequity/app_storage/local_storage.dart';
 import 'package:proequity/app_theme/custom_theme.dart';
 import '../../app_model/reimbursement_req_model.dart';
 import '../../app_services/sqlite/reimbursement_services.dart';
@@ -234,6 +235,8 @@ class _ReimbursementFormState extends State<ReimbursementForm> {
                 CustomTheme.defaultSize,
                 CustomTextFormField(
                   title: "Expense Comment",
+                  keyboardType: TextInputType.multiline,
+                  textInputAction: TextInputAction.newline,
                   controller: commentsCtrl,
                   onSaved: (value) {
                     _requestModel.expenseComment = value;
@@ -364,8 +367,8 @@ class _ReimbursementFormState extends State<ReimbursementForm> {
                       }
                       if (response != 0) {
                         alertService.successToast(Constants.successMessage);
-                          Navigator.pushReplacementNamed(context, "mainPage",
-                              arguments: 3);
+                        Navigator.pushReplacementNamed(context, "mainPage",
+                            arguments: 3);
                       } else {
                         alertService.errorToast(Constants.errorMessage);
                       }
@@ -464,25 +467,23 @@ class _ReimbursementFormState extends State<ReimbursementForm> {
       int sizeInBytes = file1.lengthSync();
       double sizeInMb = sizeInBytes / (1024 * 1024);
       if (sizeInMb < 1) {
-        if (await Permission.manageExternalStorage.request().isGranted ||
-            await Permission.storage.request().isGranted) {
-          final Directory createFolder =
-              Directory('/storage/emulated/0/PropEdge/Reimbursement/');
-          final checkPathExistence =
-              await Directory(createFolder.path).exists();
-          if (!checkPathExistence) {
-            await createFolder.create(recursive: true);
-          }
-
-          DateTime now = DateTime.now();
-          String fileName =
-              "${now.day}_${now.month}_${now.year}_${now.hour}_${now.minute}_${now.second}_${now.millisecond}";
-          final String fileExtension = extension(file1.path);
-          tmpFile =
-              await tmpFile.copy('${createFolder.path}$fileName$fileExtension');
-          photoLocation = "${createFolder.path}$fileName$fileExtension";
+        // Directory cf = Directory('${Constants.folder.path}/Reimbursement/');
+        // final checkPathExistence = await Directory(cf.path).exists();
+        // if (!checkPathExistence) {
+        //   await cf.create(recursive: true);
+        // }
+        var cf = await LocalStorage.getReimbursementFolder();
+        DateTime now = DateTime.now();
+        String fileName =
+            "${now.day}_${now.month}_${now.year}_${now.hour}_${now.minute}_${now.second}_${now.millisecond}";
+        final String fileExtension = extension(file1.path);
+        if (cf != null) {
+          tmpFile = await tmpFile.copy('${cf.path}$fileName$fileExtension');
+          photoLocation = "${cf.path}$fileName$fileExtension";
           validURL = false;
           setState(() {});
+        } else {
+          AlertService().errorToast("Folder not found!");
         }
       } else {
         AlertService().errorToast("File size must be < 1 MB.");

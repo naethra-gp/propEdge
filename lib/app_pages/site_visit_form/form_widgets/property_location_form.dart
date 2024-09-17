@@ -20,10 +20,12 @@ class PropertyLocationForm extends StatefulWidget {
 
 class _PropertyLocationFormState extends State<PropertyLocationForm> {
   List cityList = [];
+  List propertyType = [];
   List locationDetails = [];
   String addressMatching = "Yes";
   String municipalBody = "Yes";
   String selectedCity = "";
+  String selectedProperty = "";
 
   PropertyLocationServices propertyLocationServices =
       PropertyLocationServices();
@@ -36,6 +38,8 @@ class _PropertyLocationFormState extends State<PropertyLocationForm> {
   TextEditingController matchingControl = TextEditingController();
   TextEditingController municipalControl = TextEditingController();
   TextEditingController municipalNameControl = TextEditingController();
+  TextEditingController propertyTypeCtrl = TextEditingController();
+  TextEditingController floorCtrl = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -57,12 +61,15 @@ class _PropertyLocationFormState extends State<PropertyLocationForm> {
     addressControl.dispose();
     matchingControl.dispose();
     municipalControl.dispose();
+    propertyTypeCtrl.dispose();
+    floorCtrl.dispose();
     municipalNameControl.dispose();
   }
 
   Future<void> getCity() async {
     List list = await dropdownServices.read();
     cityList = list.where((element) => element['Type'] == 'City').toList();
+    propertyType = list.where((element) => element['Type'] == 'PropertyType').toList();
     setState(() {});
   }
 
@@ -80,6 +87,13 @@ class _PropertyLocationFormState extends State<PropertyLocationForm> {
       if (cl.isNotEmpty) {
         selectedCity = cl[0]['Name'].toString();
       }
+      List pt = propertyType
+          .where((e) => e['Id'] == locationDetails[0]['PropertyType'])
+          .toList();
+      if (pt.isNotEmpty) {
+        selectedProperty = pt[0]['Name'].toString();
+      }
+      floorCtrl.text = locationDetails[0]['TotalFloors'];
       cityControl.text = locationDetails[0]['City'];
       setState(() {});
     } else {
@@ -117,14 +131,7 @@ class _PropertyLocationFormState extends State<PropertyLocationForm> {
               CustomTheme.defaultSize,
               CustomTextFormField(
                 title: 'Colony',
-                // required: true,
                 controller: colonyControl,
-                // validator: (value) {
-                //   if (value == null || value.isEmpty) {
-                //     return 'Colony is Mandatory!';
-                //   }
-                //   return null;
-                // },
               ),
               CustomTheme.defaultSize,
               CustomTextFormField(
@@ -141,6 +148,7 @@ class _PropertyLocationFormState extends State<PropertyLocationForm> {
                 textInputAction: TextInputAction.done,
               ),
               CustomTheme.defaultSize,
+
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -235,14 +243,31 @@ class _PropertyLocationFormState extends State<PropertyLocationForm> {
                 controller: municipalNameControl,
               ),
               CustomTheme.defaultSize,
+              CustomDropdown(
+                title: 'Property Type',
+                itemList: propertyType.map((e) => e['Name']).toList(),
+                selectedItem: selectedProperty,
+                onChanged: (value) {
+                  List selectedCountry = propertyType
+                      .where((element) => element['Name'] == value.toString())
+                      .toList();
+                  String id = selectedCountry[0]['Id'].toString();
+                  setState(() {
+                    propertyTypeCtrl.text = id;
+                  });
+                },
+              ),
+              CustomTheme.defaultSize,
+              CustomTextFormField(
+                title: 'Floor/Structure',
+                controller: floorCtrl,
+              ),
+              CustomTheme.defaultSize,
               AppButton(
                 title: "Save & Next",
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
-
-
-
                     List<String> r = [
                       cityControl.text,
                       colonyControl.text.toString(),
@@ -250,26 +275,21 @@ class _PropertyLocationFormState extends State<PropertyLocationForm> {
                       addressMatching.toString(),
                       municipalBody.toString(),
                       municipalNameControl.text.toString(),
+                      propertyTypeCtrl.text.toString(),
+                      floorCtrl.text.toString(),
                       'N',
                       widget.propId.toString()
                     ];
                     var result = await propertyLocationServices.update(r);
+                    // AlertService().alert(context, result.toString());
                     if (result == 1) {
-                      /// SAVE STATUS
                       PropertyListServices service = PropertyListServices();
                       List request = [
                         Constants.status[1],
                         "N",
                         widget.propId.toString()
                       ];
-                      var result1 = await service.updateLocalStatus(request);
-                      print(result1);
-                      // if (result == 1) {
-                      //   AlertService().successToast("Status Updated");
-                      //   widget.buttonClicked();
-                      // } else {
-                      //   AlertService().errorToast("Status update Failure!");
-                      // }
+                      await service.updateLocalStatus(request);
                       AlertService().successToast("Property Saved");
                       widget.buttonClicked();
                     } else {

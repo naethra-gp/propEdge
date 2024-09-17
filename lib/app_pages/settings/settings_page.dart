@@ -1,6 +1,7 @@
 import 'package:babstrap_settings_screen/babstrap_settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:proequity/app_storage/secure_storage.dart';
 import 'package:proequity/app_theme/custom_theme.dart';
 import 'package:provider/provider.dart';
@@ -23,10 +24,18 @@ class _SettingsPageState extends State<SettingsPage> {
   bool darkMode = false;
   BoxStorage secureStorage = BoxStorage();
   Map<dynamic, dynamic> user = {};
+  String version = "1.0.1";
   @override
   void initState() {
+    getVersion();
     user = secureStorage.getUserDetails();
     super.initState();
+  }
+  getVersion() async {
+    PackageInfo info = await PackageInfo.fromPlatform();
+    setState(() {
+      version = info.version.toString();
+    });
   }
 
   @override
@@ -64,7 +73,7 @@ class _SettingsPageState extends State<SettingsPage> {
             Align(
               alignment: Alignment.center,
               child: Text(
-                "App Version: 1.0.1",
+                "App Version: $version",
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),

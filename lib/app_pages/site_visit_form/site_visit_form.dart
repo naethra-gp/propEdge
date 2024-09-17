@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:proequity/app_pages/site_visit_form/form_widgets/boundary_form.dart';
 import 'package:proequity/app_pages/site_visit_form/form_widgets/critical_comments_form.dart';
 import 'package:proequity/app_pages/site_visit_form/form_widgets/customer_bank_form.dart';
@@ -10,7 +8,6 @@ import 'package:proequity/app_pages/site_visit_form/form_widgets/measurement_for
 import 'package:proequity/app_pages/site_visit_form/form_widgets/occupancy_form.dart';
 import 'package:proequity/app_pages/site_visit_form/form_widgets/property_location_form.dart';
 import 'package:proequity/app_pages/site_visit_form/form_widgets/upload_pictures_page.dart';
-
 import '../../app_widgets/index.dart';
 import 'form_widgets/state_calculator_widget/new_stage_calculator.dart';
 
@@ -164,7 +161,7 @@ class _SiteVisitFormState extends State<SiteVisitForm> {
               // return alert;
               return AlertDialog(
                 title: const Text("Alert"),
-                content: const Text("Do you want to exit?"),
+                content: const Text("Do you want to exit from this form?"),
                 actions: [
                   TextButton(
                     child: const Text("OK"),
@@ -190,37 +187,36 @@ class _SiteVisitFormState extends State<SiteVisitForm> {
           //   SystemNavigator.pop();
           // }
         },
-        child: Material(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                const SizedBox(height: 10),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: Wrap(
-                    spacing: 0,
-                    children: <Widget>[
-                      for (int i = 0; i < menuItem.length; i++)
-                        topMenu(context, menuItem[i], i),
-                    ],
+        child:Material(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: Wrap(
+                  spacing: 0,
+                  children: <Widget>[
+                    for (int i = 0; i < menuItem.length; i++)
+                      topMenu(context, menuItem[i], i),
+                  ],
+                ),
+              ),
+              const Divider(
+                color: Colors.black,
+                indent: 15,
+                endIndent: 15,
+              ),
+              for (int i = 0; i < menuItem.length; i++)
+                if (menuItem[i]['isSelected'] == true)
+                  Center(
+                    child: menuItem[i]['child'],
                   ),
-                ),
-                const Divider(
-                  color: Colors.black,
-                  indent: 15,
-                  endIndent: 15,
-                ),
-                for (int i = 0; i < menuItem.length; i++)
-                  if (menuItem[i]['isSelected'] == true)
-                    Center(
-                      child: menuItem[i]['child'],
-                    ),
-                const SizedBox(height: 20),
-              ],
-            ),
+              const SizedBox(height: 20),
+            ],
           ),
         ),
-      ),
+      ),),
     );
   }
 
@@ -249,7 +245,7 @@ class _SiteVisitFormState extends State<SiteVisitForm> {
       child: Text(
         item['item'].toString(),
         textAlign: TextAlign.center,
-        style: GoogleFonts.raleway(
+        style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.bold,
           color: item['isSelected']

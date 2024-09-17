@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:proequity/app_config/app_constants.dart';
-import 'package:proequity/app_services/sqlite/boundary_services.dart';
 import 'package:proequity/app_widgets/alert_widget.dart';
+import 'package:simple_connection_checker/simple_connection_checker.dart';
 
 import '../../../app_services/index.dart';
 import '../../../app_services/sqlite/database_service.dart';
@@ -33,7 +33,7 @@ class _SiteVisitFormSyncWidgetState extends State<SiteVisitFormSyncWidget> {
   PropertyListServices plService = PropertyListServices();
   LiveToLocalInsert ltlService = LiveToLocalInsert();
   DataSyncService dataSyncService = DataSyncService();
-
+  PropertyLocationServices pLocService = PropertyLocationServices();
   @override
   void initState() {
     token = secureStorage.getLoginToken();
@@ -99,11 +99,12 @@ class _SiteVisitFormSyncWidgetState extends State<SiteVisitFormSyncWidget> {
             splashFactory: InkRipple.splashFactory,
             splashColor: Colors.blue,
             child: Column(
+              mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Icon(
                   Icons.cloud_download_outlined,
-                  size: 25,
+                  size: 22,
                   color: Colors.redAccent,
                 ),
                 Text(
@@ -118,6 +119,7 @@ class _SiteVisitFormSyncWidgetState extends State<SiteVisitFormSyncWidget> {
             ),
           ),
           onPressed: () {
+            print("Download clicked");
             if (!hasInternet) {
               alertService.errorToast("Please check your internet!");
             } else {
@@ -158,12 +160,11 @@ class _SiteVisitFormSyncWidgetState extends State<SiteVisitFormSyncWidget> {
       "CustomerName": "",
       "loginToken": {"Token": token}
     };
-
     dashService.getPropertyList(req).then((res) async {
-      // alertService.hideLoading();
+      print("P Length: ${res['PropertyList'].length}");
       if (res['PropertyList'].isNotEmpty) {
         dashService.getUnAssignProperty(req).then((res1) async {
-          alertService.hideLoading();
+          // alertService.hideLoading();
           List unAssign = res1['UnassignedProperty'];
           List property = res['PropertyList'];
           List filterProperty = property
@@ -174,28 +175,33 @@ class _SiteVisitFormSyncWidgetState extends State<SiteVisitFormSyncWidget> {
           List propertyList = await plService.read();
           List fp = filterProperty;
           List processProperty = [];
-
           for (var pl in propertyList) {
             /// Status[0] = "Pending";
             if (pl['Status'].toString() == Constants.status[0].toString()) {
               List params = [pl['PropId'].toString()];
-              await db.rawDelete('DELETE FROM ${Constants.propertyList} WHERE PropId = ?', params);
-              await db.rawDelete('DELETE FROM ${Constants.customerBankDetails} WHERE PropId = ?', params);
-              await db.rawDelete('DELETE FROM ${Constants.propertyLocation} WHERE PropId = ?', params);
-              await db.rawDelete('DELETE FROM ${Constants.locationDetails} WHERE PropId = ?', params);
-              await db.rawDelete('DELETE FROM ${Constants.occupancyDetails} WHERE PropId = ?', params);
-              await db.rawDelete('DELETE FROM ${Constants.feedback} WHERE PropId = ?', params);
-              await db.rawDelete('DELETE FROM ${Constants.boundaryDetails} WHERE PropId = ?', params);
-              await db.rawDelete('DELETE FROM ${Constants.measurementSheet} WHERE PropId = ?', params);
-              await db.rawDelete('DELETE FROM ${Constants.stageCalculator} WHERE PropId = ?', params);
-              await db.rawDelete('DELETE FROM ${Constants.criticalComment} WHERE PropId = ?', params);
-              await db.rawDelete('DELETE FROM ${Constants.locationMap} WHERE PropId = ?', params);
-              await db.rawDelete('DELETE FROM ${Constants.propertySketch} WHERE PropId = ?', params);
-              await db.rawDelete('DELETE FROM ${Constants.photograph} WHERE PropId = ?', params);
+              print("---> Removed -- $params");
+              await plService.deleteByPropId(Constants.propertyList, params);
+              await plService.deleteByPropId(
+                  Constants.customerBankDetails, params);
+              await plService.deleteByPropId(
+                  Constants.propertyLocation, params);
+              await plService.deleteByPropId(Constants.locationDetails, params);
+              await plService.deleteByPropId(
+                  Constants.occupancyDetails, params);
+              await plService.deleteByPropId(Constants.feedback, params);
+              await plService.deleteByPropId(Constants.boundaryDetails, params);
+              await plService.deleteByPropId(
+                  Constants.measurementSheet, params);
+              await plService.deleteByPropId(Constants.stageCalculator, params);
+              await plService.deleteByPropId(Constants.criticalComment, params);
+              await plService.deleteByPropId(Constants.locationMap, params);
+              await plService.deleteByPropId(Constants.propertySketch, params);
+              await plService.deleteByPropId(Constants.photograph, params);
             } else {
               processProperty.add(pl['PropId'].toString());
             }
           }
+          // print("processProperty --> $processProperty");
           List fp2 = fp
               .where((e1) => !processProperty
                   .any((e2) => e1['PropId'].toString() == e2.toString()))
@@ -205,11 +211,14 @@ class _SiteVisitFormSyncWidgetState extends State<SiteVisitFormSyncWidget> {
             getPropertyDetailBasedOnId(fp2[i]['PropId'], () {
               if (i == fp2.length - 1) {
                 alertService.successToast(Constants.apiSuccessMessage);
+                alertService.hideLoading();
               }
             });
           }
         });
       } else {
+        print("Else error");
+        alertService.hideLoading();
         alertService.errorToast(Constants.noDataSyncErrorMessage);
       }
     });
@@ -221,9 +230,10 @@ class _SiteVisitFormSyncWidgetState extends State<SiteVisitFormSyncWidget> {
       "PropId": propId.toString(),
       "loginToken": {"Token": token}
     };
+    print("Data - PropId : ${propId.toString()}");
     dataSyncService.getPropertyDetails(request).then((response) async {
+      // print("response['PropertyDetails'] --- ${response['PropertyDetails']['PropertyLocationDetails']}");
       await ltlService.insertAll(propId, response['PropertyDetails']);
-      alertService.hideLoading();
     });
     callback();
   }

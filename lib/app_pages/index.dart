@@ -1,7 +1,6 @@
 export 'dashboard/app_dashboard_page.dart';
 export 'app_main_page.dart';
 export 'data_sync/app_data_sync.dart';
-export 'ask_permission/ask_permission_page.dart';
 export 'splash_screen/splash_screen.dart';
 export 'user/login/login_page.dart';
 export 'cases/case_page.dart';
@@ -10,3 +9,4 @@ export 'settings/settings_page.dart';
 export 'reimbursement/reimbursement_form.dart';
 export 'reimbursement/view_reimbursement.dart';
 export 'reimbursement/online_view_reimbursement.dart';
+export 'app_permission/app_permission.dart';

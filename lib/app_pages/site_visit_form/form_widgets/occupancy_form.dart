@@ -30,32 +30,16 @@ class _OccupancyFormState extends State<OccupancyForm> {
   TextEditingController occupiedCtrl = TextEditingController();
   TextEditingController relationshipCtrl = TextEditingController();
   TextEditingController occupiedSinceCtrl = TextEditingController();
+  TextEditingController personMetAtSiteCtrl = TextEditingController();
+  TextEditingController personMetAtSiteContNoCtrl = TextEditingController();
   String selectedStatusOfOccupancy = '';
   String selectedRelationship = '';
-
   DateTime selectedDate = DateTime.now();
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(DateTime.now().year - 1),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        String fd = DateFormat('dd-MMM-yyyy').format(picked);
-        selectedDate = picked;
-        occupiedSinceCtrl.text = fd;
-      });
-    }
-  }
 
   @override
   void initState() {
     getStatusOfOccupancy();
     getRelationshipOfOccupantWithCustomer();
-
     Future.delayed(const Duration(seconds: 0), () {
       getOccupancy(widget.propId);
     });
@@ -68,6 +52,8 @@ class _OccupancyFormState extends State<OccupancyForm> {
     occupiedCtrl.text = _od[0]['OccupiedBy'];
     relationshipCtrl.text = _od[0]['RelationshipOfOccupantWithCustomer'];
     occupiedSinceCtrl.text = _od[0]['OccupiedSince'];
+    personMetAtSiteCtrl.text = _od[0]['PersonMetAtSite'];
+    personMetAtSiteContNoCtrl.text = _od[0]['PersonMetAtSiteContNo'];
     List sList = statusOfOccupancy
         .where((e) => e['Id'] == statusOfOccupancyCtrl.text.toString())
         .toList();
@@ -156,10 +142,20 @@ class _OccupancyFormState extends State<OccupancyForm> {
             CustomTheme.defaultSize,
             CustomTextFormField(
               title: 'Occupied Since',
-              // readOnly: true,
-             // focusNode: AlwaysDisabledFocusNode(),
               controller: occupiedSinceCtrl,
-           //   onTap: () => _selectDate(context),
+              textInputAction: TextInputAction.done,
+            ),
+            CustomTheme.defaultSize,
+            CustomTextFormField(
+              title: 'Person Met at Site',
+              controller: personMetAtSiteCtrl,
+              textInputAction: TextInputAction.done,
+            ),
+            CustomTheme.defaultSize,
+            CustomTextFormField(
+              title: 'Person Met Contact No',
+              controller: personMetAtSiteContNoCtrl,
+              keyboardType: TextInputType.phone,
               textInputAction: TextInputAction.done,
             ),
             CustomTheme.defaultSize,
@@ -171,10 +167,12 @@ class _OccupancyFormState extends State<OccupancyForm> {
                     occupiedSinceCtrl.text.isEmpty?"0":occupiedSinceCtrl.text,
                     relationshipCtrl.text.isEmpty?"0":relationshipCtrl.text,
                     statusOfOccupancyCtrl.text.isEmpty?"0":statusOfOccupancyCtrl.text,
+                    personMetAtSiteCtrl.text.toString(),
+                    personMetAtSiteContNoCtrl.text.toString(),
                     'N',
                     widget.propId.toString()
                   ];
-                  print(request);
+                  // print(request);
                   var result = await occupancyServices.update(request);
                   if (result == 1) {
                     AlertService().successToast("Occupancy Saved");

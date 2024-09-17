@@ -1,10 +1,17 @@
+import 'dart:io';
+
 import 'package:easy_splash_screen/easy_splash_screen.dart';
+import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:proequity/app_pages/app_main_page.dart';
 
 import '../../app_config/index.dart';
 import '../../app_storage/secure_storage.dart';
 import '../user/login/login_page.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -20,16 +27,29 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 3), () {
+    // createStorageFolder();
+    Future.delayed(const Duration(seconds: 2), () {
       getValidationData();
     });
+    // permission();
+  }
+
+  createStorageFolder() async {
+    if (Platform.isAndroid) {
+      var status = await Permission.storage.status;
+      if (!status.isGranted) {
+        await Permission.storage.request();
+      }
+    }
   }
 
   Future getValidationData() async {
     debugPrint('--->>> Splash Screen <<<---');
     var user = secureStorage.getUserDetails();
-    var checkPermission = secureStorage.get("setPermission");
-    if (checkPermission != null && checkPermission) {
+    var permission = secureStorage.get("permission");
+    if (permission != "true") {
+      Navigator.pushReplacementNamed(context, 'permission');
+    } else {
       if (user != null) {
         if (user['IsSuccess'] == true) {
           isLoggedIn = true;
@@ -42,8 +62,6 @@ class _SplashScreenState extends State<SplashScreen> {
         isLoggedIn = false;
         Navigator.pushReplacementNamed(context, 'login');
       }
-    } else {
-      Navigator.pushReplacementNamed(context, 'askPermission');
     }
   }
 
@@ -54,15 +72,14 @@ class _SplashScreenState extends State<SplashScreen> {
       logo: Image.asset(Constants.appLogo),
       logoWidth: 150,
       title: Text(
-        " Your trusted companion during buying and selling of your property ",
+        "Your trusted companion during buying and selling of your property",
         textAlign: TextAlign.center,
         overflow: TextOverflow.ellipsis,
         maxLines: 2,
         style: theme.textTheme.bodyMedium?.copyWith(
-          fontWeight: FontWeight.bold,
-          fontSize: 18,
-          color: theme.primaryColor,
-        ),
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: theme.primaryColor),
       ),
       showLoader: false,
       navigator: dynamicNavigation(),
@@ -71,10 +88,6 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   dynamicNavigation() async {
-    return isLoggedIn == false
-        ? const LoginPage()
-        : const MainPage(
-            index: 2,
-          );
+    return isLoggedIn == false ? const LoginPage() : const MainPage(index: 2);
   }
 }

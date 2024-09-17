@@ -22,12 +22,7 @@ class PropertyListServices {
       var specialInstruction = val['SpecialInstruction'];
       var syncStatus = "Y";
       await db.transaction((txn) async {
-        await txn.rawInsert('''
-        INSERT INTO ${Constants.propertyList} ( PropId, Address, ApplicationNumber, ContactPersonName, ContactPersonNumber, CustomerName,
-         DateOfVisit, InstituteName, LocationName, ColonyName, Priority, Status, SpecialInstruction, SyncStatus ) 
-        VALUES ( '$propId', '$address', '$applicationNumber', '$contactPersonName', '$contactPersonNumber',
-        '$customerName', '$dateOfVisit', '$instituteName', '$locationName','$colonyName', '$priority','$status', '$specialInstruction', '$syncStatus' )
-        ''');
+        await txn.rawInsert('INSERT INTO ${Constants.propertyList} ( PropId, Address, ApplicationNumber, ContactPersonName, ContactPersonNumber, CustomerName, DateOfVisit, InstituteName, LocationName, ColonyName, Priority, Status, SpecialInstruction, SyncStatus ) VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,? ) ', [propId, address,applicationNumber, contactPersonName, contactPersonNumber, customerName, dateOfVisit, instituteName, locationName,colonyName, priority,status, specialInstruction, syncStatus]);
       });
     });
   }
@@ -56,9 +51,9 @@ class PropertyListServices {
     return await db.rawDelete(
         "DELETE FROM ${Constants.propertyList} WHERE Status =? AND PropId = ?", request);
   }
-  deleteByPropId(List request) async {
+  deleteByPropId(String table, List request) async {
     final db = await DatabaseServices.instance.database;
     return await db.rawDelete(
-        "DELETE FROM ${Constants.propertyList} WHERE PropId = ?", request);
+        "DELETE FROM $table WHERE PropId = ?", request);
   }
 }

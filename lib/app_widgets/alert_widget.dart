@@ -3,6 +3,8 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:panara_dialogs/panara_dialogs.dart';
 
+import '../app_storage/secure_storage.dart';
+
 class AlertService {
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -64,6 +66,8 @@ class AlertService {
       message: message.toString(),
       buttonText: "Okay",
       onTapDismiss: () {
+        BoxStorage secureStorage = BoxStorage();
+        secureStorage.deleteUserDetails();
         Navigator.pushNamedAndRemoveUntil(
             navigatorKey.currentState!.overlay!.context,
             'login',

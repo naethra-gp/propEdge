@@ -10,13 +10,13 @@ class AppRoute {
       switch (settings.name) {
         case "splash":
           return const SplashScreen();
+        case "permission":
+          return const AppPermission();
         case "login":
           return const LoginPage();
         case "mainPage":
           int index = settings.arguments as int;
           return MainPage(index: index);
-        case "askPermission":
-          return const AskPermissionPage();
         case "siteVisitForm":
           String id = settings.arguments as String;
           return SiteVisitForm(propId: id);
@@ -33,9 +33,8 @@ class AppRoute {
         case "ViewSiteVisit":
           String id = settings.arguments as String;
           return ViewSiteVisitForm(propId: id);
-          // return ViewSiteVisit(id: id);
       }
-      return const DashboardPage();
+      return const LoginPage();
     });
   }
 }
