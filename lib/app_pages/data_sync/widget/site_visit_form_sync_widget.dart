@@ -160,9 +160,6 @@ class _SiteVisitFormSyncWidgetState extends State<SiteVisitFormSyncWidget> {
       "loginToken": {"Token": token}
     };
     dashService.getPropertyList(req).then((res) async {
-      print("P Length: ${res['PropertyList'].length}");
-      print("res2 --> $res");
-
       if (res['PropertyList'].isNotEmpty) {
         dashService.getUnAssignProperty(req).then((res1) async {
           // alertService.hideLoading();

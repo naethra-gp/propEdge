@@ -56,17 +56,14 @@ class AppThemes {
         hoverColor: Colors.transparent,
         splashColor: Colors.transparent,
       ),
-      colorScheme:
-          ColorScheme.fromSeed(seedColor: AppColors.primary).copyWith(
-        background: isDark ? AppColors.blackLight : AppColors.white,
+      colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary).copyWith(
+        surface: isDark ? AppColors.blackLight : AppColors.white,
       ),
       appBarTheme: AppBarTheme(
-        shadowColor: isDark
-            ? AppColors.primary.withOpacity(0.8)
-            : AppColors.primary,
-        backgroundColor: isDark
-            ? AppColors.primary.withOpacity(0.8)
-            : AppColors.primary,
+        shadowColor:
+            isDark ? AppColors.primary.withOpacity(0.8) : AppColors.primary,
+        backgroundColor:
+            isDark ? AppColors.primary.withOpacity(0.8) : AppColors.primary,
         iconTheme: const IconThemeData(
           color: Colors.white,
         ),
