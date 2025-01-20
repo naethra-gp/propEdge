@@ -4,7 +4,6 @@ import 'package:icons_plus/icons_plus.dart';
 import 'package:proequity/app_config/index.dart';
 import 'package:proequity/app_pages/index.dart';
 import 'package:proequity/app_widgets/index.dart';
-
 import 'site_visit_form/assigned_properties.dart';
 
 class MainPage extends StatefulWidget {
@@ -16,9 +15,10 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  int _selectedIndex = 2;
+  int _selectedIndex = 2; // Default index for Dashboard
   String appBarTitle = Constants.dashboard;
 
+  // Define the list of pages
   static const List<Widget> _pages = <Widget>[
     AssignedPropertiesPage(),
     CasePage(),
@@ -29,11 +29,10 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void initState() {
-    setState(() {
-      _selectedIndex = widget.index;
-    });
     super.initState();
+    _selectedIndex = widget.index;
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,12 +41,9 @@ class _MainPageState extends State<MainPage> {
       body: PopScope(
         canPop: false,
         onPopInvoked: (didPop) async {
-          if (didPop) {
-            return;
-          }
-          final bool shouldPop = await _onBack(context);
-          if (shouldPop) {
-            SystemNavigator.pop();
+          if (!didPop) {
+            final shouldPop = await _onBack(context);
+            if (shouldPop) SystemNavigator.pop();
           }
         },
         child: _pages.elementAt(_selectedIndex),
@@ -57,134 +53,100 @@ class _MainPageState extends State<MainPage> {
             ? const Color(0xff1980e3)
             : const Color(0xffe8edf9),
         foregroundColor: _selectedIndex == 2 ? Colors.white : Colors.black,
-        onPressed: () {
-          _onItemTapped(2, Constants.dashboard);
-        },
+        onPressed: () => _onItemTapped(2, Constants.dashboard),
         elevation: 16,
         child: const Icon(Icons.home_outlined),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        height: 60,
-        notchMargin: 5,
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            bottomMenuDynamic(LineAwesome.file_alt, 0, Constants.svFormTitle, "Site Visit"),
-            bottomMenuDynamic(
-                LineAwesome.receipt_solid, 1, Constants.caseTitle, "Case's"),
-            const Expanded(child: Text('')),
-            bottomMenuDynamic(
-                LineAwesome.calculator_solid, 3, Constants.reimbursementTitle, "Reimburse"),
-            bottomMenuDynamic(
-                LineAwesome.sync_solid, 4, Constants.dataSyncTitle, "Sync"),
-          ],
-        ),
+      bottomNavigationBar: _buildBottomNavigationBar(),
+    );
+  }
+
+  // Builds the Bottom Navigation Bar
+  Widget _buildBottomNavigationBar() {
+    return BottomAppBar(
+      height: 60,
+      notchMargin: 5,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          bottomMenuDynamic(LineAwesome.file_alt, 0, Constants.svFormTitle, "Site Visit"),
+          bottomMenuDynamic(LineAwesome.receipt_solid, 1, Constants.caseTitle, "Case's"),
+          const Expanded(child: Text('')), // Spacer
+          bottomMenuDynamic(LineAwesome.calculator_solid, 3, Constants.reimbursementTitle, "Reimburse"),
+          bottomMenuDynamic(LineAwesome.sync_solid, 4, Constants.dataSyncTitle, "Sync"),
+        ],
       ),
     );
   }
 
-  _onItemTapped(int index, String title) {
+  // Handles Bottom Navigation item taps
+  void _onItemTapped(int index, String title) {
     setState(() {
       _selectedIndex = index;
       appBarTitle = title;
     });
   }
 
+  // Handles Back Button Press
   Future<bool> _onBack(BuildContext context) async {
-    bool? exitApp = await showDialog(
+    final exitApp = await showDialog<bool>(
       context: context,
-      builder: ((context) {
+      builder: (context) {
         return AlertDialog(
           title: const Text(
             'Exit App',
-            style:
-                TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
           content: const Text(
-            'Are you sure you want to Exit app?',
+            'Are you sure you want to exit the app?',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           actions: [
             TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
               child: const Text(
                 'No',
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(false),
             ),
             TextButton(
-              style: TextButton.styleFrom(
-                  textStyle: Theme.of(context).textTheme.labelLarge,
-                  backgroundColor: Theme.of(context).primaryColor,
-                  foregroundColor: Colors.white),
               child: const Text(
                 'Yes',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
+              onPressed: () => Navigator.of(context).pop(true),
             ),
           ],
         );
-      }),
+      },
     );
-
     return exitApp ?? false;
   }
 
-  // DYNAMIC BOTTOM MENU WIDGET
+  // Creates a dynamic Bottom Menu item
   Widget bottomMenuDynamic(IconData icon, int index, String title, String label) {
-    var theme = Theme.of(context);
+    final theme = Theme.of(context);
+    final isSelected = _selectedIndex == index;
+
     return Expanded(
-      // child: IconButton(
-      //   icon: Icon(icon,
-      //       size: 25,
-      //       color: _selectedIndex == index ? theme.primaryColor : Colors.black),
-      //   onPressed: () {
-      //     _onItemTapped(index, title.toString());
-      //   },
-      // ),
       child: IconButton(
-        icon: InkWell(
-          // onTap: dataSync,
-          splashFactory: InkRipple.splashFactory,
-          splashColor: Colors.blue,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Icon(
-                icon,
-                size: 25,
-                color:
-                    _selectedIndex == index ? theme.primaryColor : Colors.black,
+        icon: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Icon(icon, size: 25, color: isSelected ? theme.primaryColor : Colors.black),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? theme.primaryColor : Colors.black,
               ),
-              Text(
-                label.toString(),
-                style: TextStyle(
-                  fontSize: 9,
-                  fontWeight: FontWeight.bold,
-                  color:
-                  _selectedIndex == index ? theme.primaryColor : Colors.black,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-        onPressed: () {
-          _onItemTapped(index, title.toString());
-        },
+        onPressed: () => _onItemTapped(index, title),
       ),
     );
   }

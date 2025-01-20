@@ -1,5 +1,3 @@
-import 'package:device_info_plus/device_info_plus.dart';
-import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -8,7 +6,6 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../../app_config/index.dart';
 import '../../../app_model/app_models.dart';
 import '../../../app_services/index.dart';
-import '../../../app_storage/local_storage.dart';
 import '../../../app_storage/secure_storage.dart';
 import '../../../app_widgets/alert_widget.dart';
 
@@ -36,39 +33,14 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void initState() {
-    permission();
     getDeviceId();
-    // setState(() {
-    //   userNameController.text = 'gnanaprakasam@naethra.com';
-    //   passWordController.text = 'User@123';
-    // loginRequestModel.iMEINumber = "8ef32d2c35806173";
-    // deviceIdController.text = "8ef32d2c35806173";
-    // });
+    setState(() {
+      userNameController.text = 'haribasker.m@naethra.com';
+      passWordController.text = 'Hari@2016';
+      loginRequestModel.iMEINumber = "8ef32d2c35806173";
+      deviceIdController.text = "8ef32d2c35806173";
+    });
     super.initState();
-  }
-
-  permission() async {
-    // PermissionStatus status;
-    // Map<Permission, PermissionStatus> statuses = await [
-    //   Permission.phone,
-    //   Permission.camera,
-    //   Permission.location,
-    //   Permission.storage,
-    //   Permission.manageExternalStorage,
-    // ].request();
-    // print(statuses[Permission.location]);
-    // final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
-    // final AndroidDeviceInfo info = await deviceInfoPlugin.androidInfo;
-    // print("sdk --> ${info.version.sdkInt}");
-    // if ((info.version.sdkInt) >= 33) {
-    //   // status = await Permission.manageExternalStorage.request();
-    //   var path = await ExternalPath.getExternalStoragePublicDirectory(
-    //       ExternalPath.DIRECTORY_DOWNLOADS);
-    //   await LocalStorage.getDBFolder();
-    //   await LocalStorage.getReimbursementFolder();
-    // } else {
-    //   status = await Permission.storage.request();
-    // }
   }
 
   @override
@@ -191,7 +163,6 @@ class _LoginPageState extends State<LoginPage> {
           ?.copyWith(fontWeight: FontWeight.w500),
       keyboardType: TextInputType.text,
       decoration: InputDecoration(
-        // label: Text("Username"),
         hintText: 'Username',
         prefixIcon: Icon(LineAwesome.user_circle, color: theme.primaryColor),
         labelStyle: TextStyle(color: theme.primaryColor),

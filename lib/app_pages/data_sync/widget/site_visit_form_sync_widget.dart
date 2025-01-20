@@ -5,7 +5,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:proequity/app_config/app_constants.dart';
 import 'package:proequity/app_widgets/alert_widget.dart';
-import 'package:simple_connection_checker/simple_connection_checker.dart';
 
 import '../../../app_services/index.dart';
 import '../../../app_services/sqlite/database_service.dart';
@@ -119,7 +118,6 @@ class _SiteVisitFormSyncWidgetState extends State<SiteVisitFormSyncWidget> {
             ),
           ),
           onPressed: () {
-            print("Download clicked");
             if (!hasInternet) {
               alertService.errorToast("Please check your internet!");
             } else {
@@ -144,6 +142,7 @@ class _SiteVisitFormSyncWidgetState extends State<SiteVisitFormSyncWidget> {
     };
     alertService.showLoading("Getting User Case Summary...");
     dashService.getUserSummary(request).then((response) async {
+      print("response $response");
       if (response != false && response['Summary'] != null) {
         await getPropertyListData();
         await caseSummaryServices.insert(response['Summary']);
@@ -162,6 +161,8 @@ class _SiteVisitFormSyncWidgetState extends State<SiteVisitFormSyncWidget> {
     };
     dashService.getPropertyList(req).then((res) async {
       print("P Length: ${res['PropertyList'].length}");
+      print("res2 --> $res");
+
       if (res['PropertyList'].isNotEmpty) {
         dashService.getUnAssignProperty(req).then((res1) async {
           // alertService.hideLoading();

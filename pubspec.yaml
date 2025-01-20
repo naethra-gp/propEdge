@@ -1,6 +1,6 @@
 name: proequity
 description: "A new Flutter project."
-version: 1.0.4
+version: 1.0.5+5
 
 environment:
   sdk: '>=3.2.6 <4.0.0'
@@ -16,7 +16,6 @@ dependencies:
   image_picker: ^1.0.7
   permission_handler: ^11.2.0
   icons_plus: ^5.0.0
-#  unique_identifier: ^0.3.0
   flutter_launcher_icons: ^0.13.1
   easy_splash_screen: ^1.0.4
   http: ^1.2.0
@@ -31,24 +30,25 @@ dependencies:
   flutter_image_compress: ^2.1.0
   image_cropper: ^1.5.1
   custom_accordion: ^1.0.0
-  observe_internet_connectivity: ^1.0.2
   advance_expansion_tile: ^1.0.2
   location: ^5.0.3
   intl: ^0.19.0
   babstrap_settings_screen: ^0.1.6
   simple_connection_checker: ^0.2.1
   connectivity_plus: ^6.0.3
-#  flutter_device_imei: ^0.0.2
-#  mobile_device_identifier: ^0.0.2
+  observe_internet_connectivity: ^1.0.2
   flutter_unique_id: ^0.0.6
   app_install_events: ^0.0.2
   external_path: ^1.0.3
   package_info_plus: ^8.0.0
   device_info_plus: ^10.1.0
-#  mobile_unique_id: ^1.0.1
-#  device_imei: ^0.0.4+2
-#  device_information: ^0.0.4
-#  flutter_device_identifier: ^0.0.1
+  #  flutter_device_imei: ^0.0.2
+  #  mobile_device_identifier: ^0.0.2
+  #  unique_identifier: ^0.3.0
+  #  mobile_unique_id: ^1.0.1
+  #  device_imei: ^0.0.4+2
+  #  device_information: ^0.0.4
+  #  flutter_device_identifier: ^0.0.1
   #  google_maps_flutter: ^2.2.8
   #  cached_network_image: ^3.3.1
   #  google_fonts: ^6.1.0
