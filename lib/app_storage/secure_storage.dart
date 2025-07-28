@@ -1,8 +1,10 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '../app_config/app_constants.dart';
+
 // Box Storage Class to Store User Details
 class BoxStorage {
-  var box = Hive.box('PROP_EQUITY_CONTROLS');
+  var box = Hive.box(Constants.boxStorage);
 
   save(key, value) {
     box.put(key, value);
@@ -28,11 +30,9 @@ class BoxStorage {
     return box.delete('user');
   }
 
-
   //Get User Name
   getLoginToken() {
     var user = getUserDetails();
     return user['LoginToken'].toString();
   }
-
 }

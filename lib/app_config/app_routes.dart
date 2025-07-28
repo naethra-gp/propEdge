@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:proequity/app_pages/site_visit_form/site_visit_form.dart';
 
 import '../app_pages/index.dart';
-import '../app_pages/site_visit_form/view_site_visit_form/view_site_visit_form.dart';
 
 class AppRoute {
   static Route<dynamic> allRoutes(RouteSettings settings) {
@@ -17,22 +15,25 @@ class AppRoute {
         case "mainPage":
           int index = settings.arguments as int;
           return MainPage(index: index);
-        case "siteVisitForm":
-          String id = settings.arguments as String;
-          return SiteVisitForm(propId: id);
-        case "reimbursementForm":
+          case "site_visit_form":
+            String id = settings.arguments as String;
+            return SiteVisitFormPage(propId: id);
+        case "addReimbursement":
           Map args = settings.arguments as Map;
-          return ReimbursementForm(args: args);
-        case "viewReimbursement":
-          String id = settings.arguments as String;
-          return ViewReimbursement(id: id);
+          return AddReimbursement(args: args);
+        case "view_reimbursement_details":
+          List id = settings.arguments as List;
+          return ViewReimbursementDetails(id: id);
+        case "local_view_details":
+          List list = settings.arguments as List;
+          return LocalViewDetails(list: list);
         case "settings":
-          return const SettingsPage();
-        case "onlineReimbursement":
-          return const OnlineReimbursementPage();
-        case "ViewSiteVisit":
-          String id = settings.arguments as String;
-          return ViewSiteVisitForm(propId: id);
+          return const Settings();
+        case "view_reimbursement":
+          return const ViewReimbursement();
+          case "view_site_visit_form_data":
+            String id = settings.arguments as String;
+            return ViewSiteVisitFormData(propId: id);
       }
       return const LoginPage();
     });

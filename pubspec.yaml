@@ -1,72 +1,61 @@
-name: proequity
+name: prop_edge
 description: "A new Flutter project."
-version: 1.0.5+5
+publish_to: 'none'
+version: 1.0.5+5 # ---> CHECK THIS VERSION BEFORE BUILD AND DEPLOY.
 
 environment:
-  sdk: '>=3.2.6 <4.0.0'
+  sdk: ^3.6.1
+
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.6
-  get_it: ^7.6.7
+  cupertino_icons: ^1.0.8
+  get_it: ^8.0.3
   hive_flutter: ^1.1.0
   provider: ^6.1.2
-  path_provider: ^2.1.2
-  path: ^1.8.3
-  image_picker: ^1.0.7
-  permission_handler: ^11.2.0
-  icons_plus: ^5.0.0
+  path_provider: ^2.1.5
+  path: ^1.9.0
+  permission_handler: ^11.3.1
   flutter_launcher_icons: ^0.13.1
-  easy_splash_screen: ^1.0.4
-  http: ^1.2.0
-  fluttertoast: ^8.2.4
-  panara_dialogs: ^0.1.4
-  sqflite: ^2.3.2
-  dropdown_search: ^5.0.6
-  url_launcher: ^6.2.4
+  http: ^1.3.0
   flutter_easyloading: ^3.0.5
-  geolocator: ^11.0.0
-  custom_sliding_segmented_control: ^1.8.1
-  flutter_image_compress: ^2.1.0
-  image_cropper: ^1.5.1
-  custom_accordion: ^1.0.0
-  advance_expansion_tile: ^1.0.2
-  location: ^5.0.3
-  intl: ^0.19.0
-  babstrap_settings_screen: ^0.1.6
-  simple_connection_checker: ^0.2.1
-  connectivity_plus: ^6.0.3
-  observe_internet_connectivity: ^1.0.2
-  flutter_unique_id: ^0.0.6
-  app_install_events: ^0.0.2
-  external_path: ^1.0.3
-  package_info_plus: ^8.0.0
-  device_info_plus: ^10.1.0
-  #  flutter_device_imei: ^0.0.2
-  #  mobile_device_identifier: ^0.0.2
-  #  unique_identifier: ^0.3.0
-  #  mobile_unique_id: ^1.0.1
-  #  device_imei: ^0.0.4+2
-  #  device_information: ^0.0.4
-  #  flutter_device_identifier: ^0.0.1
-  #  google_maps_flutter: ^2.2.8
-  #  cached_network_image: ^3.3.1
-  #  google_fonts: ^6.1.0
-  #  internet_connection_checker_plus: ^2.3.0
-  #  accordion: ^2.6.0
-  #  group_radio_button: ^1.3.0
-  #  async: ^2.11.0
-  #  persistent_bottom_nav_bar: ^5.0.2
-  #  loading_animation_widget: ^1.2.0+4
-  #  sqflite_sqlcipher: ^3.0.0
-  #  screenshot: ^2.1.0
+  fluttertoast: ^8.2.12
+  easy_splash_screen: ^1.0.4
+  icons_plus: ^5.0.0
+  unique_identifier: ^0.4.0
+  connectivity_plus: ^6.1.3
+  sqflite_sqlcipher: ^3.1.0+1
+  sqflite: ^2.4.1
+  intl: ^0.20.1
+  flutter_image_compress: ^2.4.0
+  image_cropper: ^9.0.0
+  image_picker: ^1.1.2
+  external_path: ^2.2.0
+  cached_network_image: ^3.4.1
+  package_info_plus: ^8.2.1
+  safe_device: ^1.2.0
+  flutter_cache_manager: ^3.4.1
+  expansion_tile_group: ^2.2.0
+  url_launcher: ^6.3.1
+  device_info_plus: ^11.3.0
+  # geolocator: ^13.0.2
+  location: ^8.0.0
+  custom_sliding_segmented_control: ^1.8.5
+#  dropdown_search: ^6.0.2
+  dropdown_search: ^5.0.6
+  workmanager: ^0.5.2
+  disable_battery_optimization: ^1.1.1
+  retry: ^3.1.2
+  firebase_core: ^3.12.1
+  firebase_crashlytics: ^4.3.4
+  firebase_performance: ^0.10.1+4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.1
+  flutter_lints: ^5.0.0
 
-
+#  FLUTTER APP ICON
 flutter_icons:
   android: "launcher_icon"
   ios: true
@@ -78,8 +67,28 @@ flutter:
     - assets/
     - assets/images/
     - assets/app/
+
   fonts:
-    - family: Poppins
+    - family: appFont1
       fonts:
-        - asset: assets/fonts/Poppins.ttf
-          weight: 100
+        - asset: assets/fonts/Poppins/Poppins Regular 400.ttf
+          weight: 400
+        - asset: assets/fonts/Poppins/Poppins Medium 500.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins/Poppins SemiBold 600.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins/Poppins Bold 700.ttf
+          weight: 700
+    - family: appFont
+      fonts:
+        - asset: assets/fonts/roboto/Roboto-Regular.ttf
+          weight: 500
+        - asset: assets/fonts/roboto/Roboto-Medium.ttf
+          weight: 600
+        - asset: assets/fonts/roboto/Roboto-CondensedRegular.ttf
+          weight: 800
+        - asset: assets/fonts/roboto/Roboto-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/roboto/Roboto-Black.ttf
+          weight: 900
+

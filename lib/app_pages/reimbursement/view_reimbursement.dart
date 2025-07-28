@@ -1,156 +1,196 @@
-import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:proequity/app_theme/custom_theme.dart';
-import 'package:proequity/app_widgets/app_common/app_bar.dart';
+import 'package:icons_plus/icons_plus.dart';
+import 'package:prop_edge/app_services/local_db/local_services/dropdown_services.dart';
+import 'package:prop_edge/app_theme/app_color.dart';
 
-import '../../app_services/sqlite/reimbursement_services.dart';
-import '../../app_theme/theme_files/app_color.dart';
+import '../../app_services/reimbursement_service.dart';
+import '../../app_storage/secure_storage.dart';
+import '../../app_theme/custom_theme.dart';
+import '../../app_utils/alert_service.dart';
+import '../../app_utils/app/app_bar.dart';
+import '../../app_utils/app/search_widget.dart';
+import '../../app_utils/app_widget/no_data_found.dart';
 
 class ViewReimbursement extends StatefulWidget {
-  final String id;
-
-  const ViewReimbursement({super.key, required this.id});
+  const ViewReimbursement({super.key});
 
   @override
   State<ViewReimbursement> createState() => _ViewReimbursementState();
 }
 
 class _ViewReimbursementState extends State<ViewReimbursement> {
-  ReimbursementServices services = ReimbursementServices();
-  List details = [];
-  bool noImage = false;
-  bool validURL = false;
+  List reimbursement = [];
+  List searchHistory = [];
+  final TextEditingController searchController = TextEditingController();
+  // ReimbursementServices reimbursementServices = ReimbursementServices();
+  ReimbursementService reService = ReimbursementService();
+  BoxStorage secureStorage = BoxStorage();
+  List expDD = [];
+  DropdownServices dropdownServices = DropdownServices();
+
+  bool hasInternet = false;
+  StreamSubscription? subscription;
+  AlertService alertService = AlertService();
+
   @override
   void initState() {
-    getDetails(widget.id);
+    getDropdown();
+    getReimbursement();
+    debugPrint("----> Reimbursement Online Page <----");
+    searchController.addListener(searchListener);
     super.initState();
   }
 
-  getDetails(String id) async {
-    details = await services.readById(id);
-    validURL = Uri.parse(details[0]['BillPath']).isAbsolute;
-    if (details[0]['BillPath'].toString() == "") {
-      noImage = true;
+  @override
+  void dispose() {
+    searchController.removeListener(searchListener);
+    searchController.dispose();
+    super.dispose();
+  }
+
+  void searchListener() {
+    search(searchController.text);
+  }
+
+  void search(String value) {
+    if (value.isEmpty) {
+      setState(() {
+        searchHistory = reimbursement;
+      });
+    } else {
+      setState(() {
+        searchHistory = reimbursement.where((element) {
+          final an = getExpenseName(element['NatureOfExpense'].toString())
+              .toLowerCase();
+          final cn = element['TotalAmount'].toString().toLowerCase();
+          final input = value.toLowerCase();
+          return an.contains(input) || cn.contains(input);
+        }).toList();
+      });
     }
-    setState(() {});
+  }
+
+  Future<void> getReimbursement() async {
+    alertService.showLoading();
+    var token = secureStorage.getLoginToken();
+    var request = {
+      "loginToken": {"Token": token}
+    };
+    reService.getReimbursement(context, request).then((result) async {
+      alertService.hideLoading();
+      if (result != false) {
+        reimbursement = result['Reimbursement'];
+        searchHistory = result['Reimbursement'];
+        setState(() {});
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return details.isEmpty
-        ? const Center(
-            child: CircularProgressIndicator(
-              color: AppColors.primary,
-            ),
-          )
-        : Scaffold(
-            appBar: AppBarWidget(
-              title: details[0]['BillName'].toString(),
-              action: false,
-            ),
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: Column(
-                  children: <Widget>[
-                    CustomTheme.defaultHeight10,
-                    if (!validURL && !noImage) ...[
-                      Image.file(
-                        File(details[0]['BillPath']),
-                        height: MediaQuery.of(context).size.height * 0.2,
-                        fit: BoxFit.cover,
-                      ),
-                    ],
-                    if (validURL && !noImage) ...[
-                      Image.network(
-                        details[0]['BillPath'],
-                        height: MediaQuery.of(context).size.height * 0.2,
-                        fit: BoxFit.cover,
-                      ),
-                    ],
-                    if (noImage) ...[
-                      Image.asset(
-                        "assets/images/img_1.png",
-                        height: MediaQuery.of(context).size.height * 0.2,
-                        fit: BoxFit.cover,
-                      ),
-                    ],
-                    const SizedBox(height: 50),
-                    const Text(
-                      "Reimbursement Details",
-                      style: TextStyle(
-                        decoration: TextDecoration.underline,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    CustomTheme.defaultSize,
-                    rowDetails(
-                      "Bill Name",
-                      details[0]['BillName'].toString(),
-                    ),
-                    CustomTheme.defaultSize,
-                    rowDetails(
-                      "Nature Of Expense",
-                      details[0]['NatureOfExpense'].toString(),
-                    ),
-                    CustomTheme.defaultSize,
-                    rowDetails(
-                      "Expense Date",
-                      details[0]['ExpenseDate'].toString(),
-                    ),
-                    CustomTheme.defaultSize,
-                    rowDetails(
-                      "Number Of Days",
-                      details[0]['NoOfDays'].toString(),
-                    ),
-                    CustomTheme.defaultSize,
-                    rowDetails(
-                      "Allowance",
-                      "Rs. ${details[0]['TravelAllowance'].toString()}",
-                    ),
-                    CustomTheme.defaultSize,
-                    rowDetails(
-                      "Total Amount",
-                      "Rs. ${details[0]['TotalAmount'].toString()}",
-                    ),
-                    CustomTheme.defaultSize,
-                    rowDetails(
-                      "Expense Comment",
-                      getEmptyToNil(details[0]['ExpenseComment'].toString()),
-                    ),
-                    CustomTheme.defaultSize,
-                  ],
-                ),
-              ),
-            ),
-          );
-  }
-
-  Widget rowDetails(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 10, left: 10, bottom: 5),
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                color: Colors.black54,
-                fontWeight: FontWeight.bold,
-              ),
+    return SafeArea(
+      child: Scaffold(
+        appBar: const AppBarWidget(
+          title: "Reimbursement",
+          action: false,
         ),
-        Text(
-          value,
-          overflow: TextOverflow.clip,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
+        body: Material(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              child: Column(
+                children: <Widget>[
+                  CustomTheme.defaultHeight10,
+                  SizedBox(
+                    height: 50,
+                    child: SearchWidget(
+                      controller: searchController,
+                      hintText: "Search...",
+                    ),
+                  ),
+                  CustomTheme.defaultHeight10,
+                  Expanded(
+                    child: searchHistory.isEmpty
+                        ? NoDataFound()
+                        : ListView.builder(
+                            itemCount: searchHistory.length,
+                            itemBuilder: (context, index) {
+                              final item = searchHistory[index];
+                              return listWidget(item);
+                            },
+                          ),
+                  ),
+                  CustomTheme.defaultHeight10,
+                ],
               ),
-        )
-      ]),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
-  getEmptyToNil(String value) {
-    return value == "" ? "NIL" : value;
+  Widget listWidget(list) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.black54),
+          // border: Border.all(color: Theme.of(context).primaryColor, width: 1.5),
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+          title: Text(
+            "${getExpenseName(list['NatureOfExpense'].toString()).toUpperCase()} - Rs.${list['TotalAmount']}",
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+          ),
+          subtitle: Text(
+            list['BillName'].toString(),
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
+          ),
+          trailing: IconButton(
+            style: ButtonStyle(
+              backgroundColor: WidgetStatePropertyAll(AppColors.primary),
+              shape: WidgetStatePropertyAll(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(50),
+                ),
+              ),
+            ),
+            onPressed: () {
+              Navigator.pushNamed(context, 'view_reimbursement_details',
+                  arguments: [list]);
+            },
+            icon: Icon(LineAwesome.eye, color: Colors.white),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String getExpenseName(String natureOfExpenseId) {
+    try {
+      var matchedExpense = expDD.firstWhere(
+        (expense) => expense['Id'].toString() == natureOfExpenseId,
+      );
+      return matchedExpense['Name'];
+    } catch (e) {
+      return '';
+    }
+  }
+
+  getDropdown() async {
+    expDD = await dropdownServices.readByType('NatureOfExpense');
+    setState(() {});
   }
 }

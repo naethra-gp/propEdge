@@ -1,18 +1,12 @@
-import 'dart:io';
-
 import 'package:easy_splash_screen/easy_splash_screen.dart';
-import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:proequity/app_pages/app_main_page.dart';
 
-import '../../app_config/index.dart';
+import '../../app_config/app_constants.dart';
+import '../../app_config/app_strings.dart';
 import '../../app_storage/secure_storage.dart';
-import '../user/login/login_page.dart';
-import 'package:device_info_plus/device_info_plus.dart';
+import '../../app_theme/app_color.dart';
 
+/// A splash screen that handles initial app navigation based on user authentication state
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -21,73 +15,68 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  bool isLoggedIn = false;
-  BoxStorage secureStorage = BoxStorage();
+  // Duration for which the splash screen is displayed
+  static const _splashDuration = Duration(seconds: 3);
+  final _secureStorage = BoxStorage();
 
   @override
   void initState() {
-    super.initState();
-    // createStorageFolder();
-    Future.delayed(const Duration(seconds: 2), () {
-      getValidationData();
-    });
-    // permission();
-  }
-
-  createStorageFolder() async {
-    if (Platform.isAndroid) {
-      var status = await Permission.storage.status;
-      if (!status.isGranted) {
-        await Permission.storage.request();
-      }
-    }
-  }
-
-  Future getValidationData() async {
     debugPrint('--->>> Splash Screen <<<---');
-    var user = secureStorage.getUserDetails();
-    var permission = secureStorage.get("permission");
+    super.initState();
+    _handleNavigation();
+  }
+
+  /// Handles navigation logic after splash screen delay
+  /// Checks user permissions and authentication state to determine next screen
+  Future<void> _handleNavigation() async {
+    // Wait for splash screen animation
+    await Future.delayed(_splashDuration);
+
+    // Ensure widget is still mounted before navigation
+    if (!mounted) return;
+
+    // Check if user has granted necessary permissions
+    final permission = _secureStorage.get("permission");
     if (permission != "true") {
       Navigator.pushReplacementNamed(context, 'permission');
+      return;
+    }
+
+    // Check user authentication state
+    final user = _secureStorage.getUserDetails();
+    if (user != null && user['IsSuccess'] == true) {
+      // User is authenticated, navigate to main page
+      Navigator.pushReplacementNamed(context, 'mainPage', arguments: 2);
     } else {
-      if (user != null) {
-        if (user['IsSuccess'] == true) {
-          isLoggedIn = true;
-          Navigator.pushReplacementNamed(context, 'mainPage', arguments: 2);
-        } else {
-          isLoggedIn = false;
-          Navigator.pushReplacementNamed(context, 'login');
-        }
-      } else {
-        isLoggedIn = false;
-        Navigator.pushReplacementNamed(context, 'login');
-      }
+      // User is not authenticated, navigate to login
+      Navigator.pushReplacementNamed(context, 'login');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
-    return EasySplashScreen(
-      logo: Image.asset(Constants.appLogo),
-      logoWidth: 150,
-      title: Text(
-        "Your trusted companion during buying and selling of your property",
-        textAlign: TextAlign.center,
-        overflow: TextOverflow.ellipsis,
-        maxLines: 2,
-        style: theme.textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: theme.primaryColor),
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      child: EasySplashScreen(
+        logo: Image.asset(Constants.appLogo),
+        backgroundColor: theme.scaffoldBackgroundColor,
+        logoWidth: 150,
+        showLoader: true,
+        loaderColor: AppColors.primary,
+        durationInSeconds: _splashDuration.inSeconds,
+        title: Text(
+          AppStrings.splashText,
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 2,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+            color: theme.primaryColor,
+          ),
+        ),
       ),
-      showLoader: false,
-      navigator: dynamicNavigation(),
-      durationInSeconds: 3,
     );
-  }
-
-  dynamicNavigation() async {
-    return isLoggedIn == false ? const LoginPage() : const MainPage(index: 2);
   }
 }

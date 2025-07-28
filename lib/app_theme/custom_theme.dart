@@ -1,7 +1,7 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 
-import 'theme_files/app_color.dart';
+import 'index.dart';
 
 class CustomTheme {
   CustomTheme._();
@@ -9,16 +9,22 @@ class CustomTheme {
   static TextStyle formLabelStyle = const TextStyle(
     color: Colors.black,
     fontWeight: FontWeight.w600,
-    fontSize: 14,
+    fontSize: 12,
+  );
+  static TextStyle errorStyle = TextStyle(
+    color: Colors.redAccent,
+    fontSize: 10,
+    fontWeight: FontWeight.w600,
   );
   static TextStyle formFieldStyle = const TextStyle(
     fontSize: 13,
-    fontWeight: FontWeight.normal,
+    color: Colors.black,
+    fontWeight: FontWeight.w500,
   );
   static TextStyle formHintStyle = const TextStyle(
-    fontSize: 13,
-    fontWeight: FontWeight.normal,
-    color: Colors.grey,
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+    color: Colors.black54,
   );
   static TextStyle datatableHeadStyle = const TextStyle(
     color: Colors.black,
@@ -34,65 +40,48 @@ class CustomTheme {
       spreadRadius: 0.1,
     ),
   ];
-  static  BoxDecoration decoration = BoxDecoration(
+  static BoxDecoration decoration = BoxDecoration(
     boxShadow: CustomTheme.boxShadow,
     color: Colors.white,
     borderRadius: BorderRadius.circular(5.0),
   );
   static DropDownDecoratorProps dropdownDecoratorProps = DropDownDecoratorProps(
-    dropdownSearchDecoration: InputDecoration(
-      isDense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-      disabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(5.0),
-        borderSide: const BorderSide(color: Colors.grey),
-      ),
-      hintText: "Select",
-      // label: const Text("Select"),
-      // labelStyle: const TextStyle(overflow: TextOverflow.clip),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(5.0),
-        borderSide: const BorderSide(
-          color: AppColors.primary,
-        ),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(5.0),
-        borderSide: const BorderSide(
-          color: AppColors.primary,
-          width: 2,
-        ),
-      ),
-    ),
+    // decoration: customDropdownStyle,
+    dropdownSearchDecoration: customDropdownStyle,
   );
 
   static SizedBox defaultSize = const SizedBox(height: 16);
   static SizedBox defaultHeight10 = const SizedBox(height: 10);
 
   static InputDecoration customDropdownStyle = InputDecoration(
-    isDense: true,
-    contentPadding: const EdgeInsets.all(10.0),
+    // isDense: true,
+    // contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+    hintText: "Select",
+    hintStyle: formHintStyle,
+    labelStyle: formLabelStyle,
+    errorStyle: const TextStyle(
+      color: Colors.redAccent,
+      fontSize: 10,
+    ),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(5.0),
+      borderSide: const BorderSide(color: Color(0xff1980e3)),
+    ),
     disabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(5.0),
       borderSide: const BorderSide(color: Colors.grey),
     ),
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(5.0),
-      borderSide: const BorderSide(
-        color: AppColors.primary,
-      ),
-    ),
     errorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(5.0),
-      borderSide: const BorderSide(
-        color: Colors.redAccent,
-      ),
+      borderSide: const BorderSide(color: Colors.redAccent),
     ),
     focusedBorder: const OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(5.0)),
-      borderSide: BorderSide(
-        color: AppColors.primary,
-      ),
+      borderSide: BorderSide(color: Color(0xff1980e3)),
+    ),
+    focusedErrorBorder: const OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(5.0)),
+      borderSide: BorderSide(color: Colors.redAccent),
     ),
   );
 }

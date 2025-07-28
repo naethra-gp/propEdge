@@ -1,78 +1,120 @@
-import 'package:flutter/cupertino.dart';
-
 import '../app_config/app_endpoints.dart';
 import 'connection.dart';
 
 class SiteVisitService {
+  getUserSummary(requestModel) async {
+    Connection connection = Connection();
+    var url = '${EndPoints.baseApi}/GetUserCaseSummary';
+    var response = await connection.post(url, requestModel);
+    return response;
+  }
 
-  /// NEW METHOD
-  propertyLocation(requestModel) async {
+  getPropertyList(requestModel) async {
     Connection connection = Connection();
-    var url = '${EndPoints.baseApi}/CreatePropertyLocationDetails';
+    var url = '${EndPoints.baseApi}/GetPropertyList';
     var response = await connection.post(url, requestModel);
     return response;
   }
-  locationDetails(requestModel) async {
+
+  /// GET PROPERTY DETAIL BASED ON PROP_ID
+  getUnAssignProperty(requestModel) async {
     Connection connection = Connection();
-    var url = '${EndPoints.baseApi}/CreateLocationDetails';
+    var url = '${EndPoints.baseApi}/GetUnassignedProperty';
     var response = await connection.post(url, requestModel);
     return response;
   }
-  occupancyDetails(requestModel) async {
+
+  /// GET PROPERTY DETAIL BASED ON PROP_ID
+  getPropertyDetails(params) async {
+    Connection connection = Connection();
+    var url = '${EndPoints.baseApi}/GetPropertyDetails';
+    var response = await connection.post(url, params);
+    return response;
+  }
+
+  /// SAVE PROPERTY DETAILS - CreatePropertyDetails
+  savePropertyDetails(params) async {
+    Connection connection = Connection();
+    var url = '${EndPoints.baseApi}/CreatePropertyDetails';
+    var response = await connection.post(url, params);
+    return response;
+  }
+
+  /// SAVE AREA DETAILS - CreateAreaDetails
+  saveAreaDetails(params) async {
+    Connection connection = Connection();
+    var url = '${EndPoints.baseApi}/CreateAreaDetails';
+    var response = await connection.post(url, params);
+    return response;
+  }
+
+  /// SAVE OCCUPANCY DETAILS - CreateOccupancyDetails
+  saveOccupancyDetails(params) async {
     Connection connection = Connection();
     var url = '${EndPoints.baseApi}/CreateOccupancyDetails';
-    var response = await connection.post(url, requestModel);
+    var response = await connection.post(url, params);
     return response;
   }
-  feedback(requestModel) async {
-    Connection connection = Connection();
-    var url = '${EndPoints.baseApi}/CreateFeedback';
-    var response = await connection.post(url, requestModel);
-    return response;
-  }
-  boundaryDetails(requestModel) async {
+
+  /// SAVE BOUNDARY DETAILS - CreateBoundaryDetails
+  saveBoundaryDetails(params) async {
     Connection connection = Connection();
     var url = '${EndPoints.baseApi}/CreateBoundaryDetails';
-    var response = await connection.post(url, requestModel);
+    var response = await connection.post(url, params);
     return response;
   }
-  criticalComment( requestModel) async {
-    Connection connection = Connection();
-    var url = '${EndPoints.baseApi}/CreateCriticalComment';
-    var response = await connection.post(url, requestModel);
-    return response;
-  }
-  measurementSheet(requestModel) async {
+  /// SAVE MEASUREMENT DETAILS - CreateMeasurementSheet
+  saveMeasurementDetails(params) async {
     Connection connection = Connection();
     var url = '${EndPoints.baseApi}/CreateMeasurementSheet';
-    var response = await connection.post(url, requestModel);
+    var response = await connection.post(url, params);
     return response;
   }
-  stageCalculator(requestModel) async {
+
+  /// SAVE STAGE CALCULATOR DETAILS - CreateStageCalculator
+  saveStageCalculatorDetails(params) async {
     Connection connection = Connection();
     var url = '${EndPoints.baseApi}/CreateStageCalculator';
-    var response = await connection.post(url, requestModel);
+    var response = await connection.post(url, params);
     return response;
   }
 
-  propertySketch(requestModel) async {
+  /// SAVE COMMENTS DETAILS - CreateCriticalComment
+  saveCommentsDetails(params) async {
     Connection connection = Connection();
-    var url = '${EndPoints.baseApi}/CreatePropertySketch';
-    var response = await connection.post(url, requestModel);
+    var url = '${EndPoints.baseApi}/CreateCriticalComment';
+    var response = await connection.post(url, params);
     return response;
   }
 
-  photograph(requestModel) async {
-    Connection connection = Connection();
-    var url = '${EndPoints.baseApi}/CreatePhotograph';
-    var response = await connection.post(url, requestModel);
-    return response;
-  }
-
-  locationMap(requestModel) async {
+  /// SAVE MEASUREMENT DETAILS - CreateLocationMap
+  saveLocationMapDetails(params) async {
     Connection connection = Connection();
     var url = '${EndPoints.baseApi}/CreateLocationMap';
-    var response = await connection.post(url, requestModel);
+    var response = await connection.post(url, params);
+    return response;
+  }
+
+  /// SAVE Property Plan DETAILS - CreatePropertySketch
+  savePropertyPlanDetails(params) async {
+    Connection connection = Connection();
+    var url = '${EndPoints.baseApi}/CreatePropertySketch';
+    var response = await connection.post(url, params);
+    return response;
+  }
+  /// SAVE PHOTOGRAPH DETAILS - CreatePhotograph
+  savePhotographDetails(params) async {
+    Connection connection = Connection();
+    var url = '${EndPoints.baseApi}/CreatePhotograph';
+    var response = await connection.post(url, params);
+    return response;
+  }
+
+  /// SAVE OVERALL SITE VISIT FORM DETAILS - SubmitProperty
+  submitProperty(params) async {
+    Connection connection = Connection();
+    var url = '${EndPoints.baseApi}/SubmitProperty';
+    var response = await connection.post(url, params);
     return response;
   }
 
@@ -83,104 +125,4 @@ class SiteVisitService {
     return response;
   }
 
-  submitPropertyNew(requestModel) async {
-    Connection connection = Connection();
-    var url = '${EndPoints.baseApi}/SubmitProperty';
-    var response = await connection.post(url, requestModel);
-    return response;
-  }
-
-
-
-  // TODO: OLD METHODS
-  createPropertyLocationDetails(BuildContext ctx, requestModel) async {
-    Connection connection = Connection();
-    var url = '${EndPoints.baseApi}/CreatePropertyLocationDetails';
-    var response = await connection.post(url, requestModel);
-    return response;
-  }
-
-  createLocationDetails(BuildContext ctx, requestModel) async {
-    Connection connection = Connection();
-    var url = '${EndPoints.baseApi}/CreateLocationDetails';
-    var response = await connection.post(url, requestModel);
-    return response;
-  }
-
-  createOccupancyDetails(BuildContext ctx, requestModel) async {
-    Connection connection = Connection();
-    var url = '${EndPoints.baseApi}/CreateOccupancyDetails';
-    var response = await connection.post(url, requestModel);
-    return response;
-  }
-
-  createFeedback(BuildContext ctx, requestModel) async {
-    Connection connection = Connection();
-    var url = '${EndPoints.baseApi}/CreateFeedback';
-    var response = await connection.post(url, requestModel);
-    return response;
-  }
-
-  createBoundaryDetails(BuildContext ctx, requestModel) async {
-    Connection connection = Connection();
-    var url = '${EndPoints.baseApi}/CreateBoundaryDetails';
-    var response = await connection.post(url, requestModel);
-    return response;
-  }
-
-  createCriticalComment(BuildContext ctx, requestModel) async {
-    Connection connection = Connection();
-    var url = '${EndPoints.baseApi}/CreateCriticalComment';
-    var response = await connection.post(url, requestModel);
-    return response;
-  }
-
-  createMeasurementSheet(BuildContext ctx, requestModel) async {
-    Connection connection = Connection();
-    var url = '${EndPoints.baseApi}/CreateMeasurementSheet';
-    var response = await connection.post(url, requestModel);
-    return response;
-  }
-
-  createStageCalculator(BuildContext ctx, requestModel) async {
-    Connection connection = Connection();
-    var url = '${EndPoints.baseApi}/CreateStageCalculator';
-    var response = await connection.post(url, requestModel);
-    return response;
-  }
-
-  createPropertySketch(BuildContext ctx, requestModel) async {
-    Connection connection = Connection();
-    var url = '${EndPoints.baseApi}/CreatePropertySketch';
-    var response = await connection.post(url, requestModel);
-    return response;
-  }
-
-  createPhotograph(BuildContext ctx, requestModel) async {
-    Connection connection = Connection();
-    var url = '${EndPoints.baseApi}/CreatePhotograph';
-    var response = await connection.post(url, requestModel);
-    return response;
-  }
-
-  createLocationMap(BuildContext ctx, requestModel) async {
-    Connection connection = Connection();
-    var url = '${EndPoints.baseApi}/CreateLocationMap';
-    var response = await connection.post(url, requestModel);
-    return response;
-  }
-
-  deleteImage(context, requestModel) async {
-    Connection connection = Connection();
-    var url = '${EndPoints.baseApi}/DeleteImage';
-    var response = await connection.post(url, requestModel);
-    return response;
-  }
-
-  submitProperty(context, requestModel) async {
-    Connection connection = Connection();
-    var url = '${EndPoints.baseApi}/SubmitProperty';
-    var response = await connection.post(url, requestModel);
-    return response;
-  }
 }

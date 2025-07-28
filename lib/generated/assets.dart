@@ -3,7 +3,9 @@ class Assets {
   Assets._();
 
   static const String appAppIcon = 'assets/app/app-icon.png';
+  static const String assetsImagesNoDataFound = 'assets/images/no_data_found.png';
   static const String fontsPoppins = 'assets/fonts/Poppins.ttf';
+  static const String imagesImageError = 'assets/images/image_error.jpg';
   static const String imagesImg = 'assets/images/img.png';
   static const String imagesImg1 = 'assets/images/img_1.png';
   static const String imagesImg2 = 'assets/images/img_2.png';
@@ -13,6 +15,28 @@ class Assets {
   static const String imagesLoginBg3 = 'assets/images/login-bg-3.png';
   static const String imagesLoginbg01 = 'assets/images/loginbg01.jpg';
   static const String imagesLogo = 'assets/images/logo.png';
+  static const String imagesLogout = 'assets/images/logout.png';
+  static const String imagesNoData6 = 'assets/images/no-data-6.svg';
+  static const String imagesNoData6512 = 'assets/images/no-data-6-512.png';
   static const String imagesNoDataFound = 'assets/images/no_data_found.jpg';
+  static const String imagesPngegg = 'assets/images/pngegg.png';
+  static const String robotoRobotoBlack = 'assets/fonts/roboto/Roboto-Black.ttf';
+  static const String robotoRobotoBlackItalic = 'assets/fonts/roboto/Roboto-BlackItalic.ttf';
+  static const String robotoRobotoBold = 'assets/fonts/roboto/Roboto-Bold.ttf';
+  static const String robotoRobotoBoldItalic = 'assets/fonts/roboto/Roboto-BoldItalic.ttf';
+  static const String robotoRobotoCondensedBold = 'assets/fonts/roboto/Roboto-CondensedBold.ttf';
+  static const String robotoRobotoCondensedBoldItalic = 'assets/fonts/roboto/Roboto-CondensedBoldItalic.ttf';
+  static const String robotoRobotoCondensedItalic = 'assets/fonts/roboto/Roboto-CondensedItalic.ttf';
+  static const String robotoRobotoCondensedLight = 'assets/fonts/roboto/Roboto-CondensedLight.ttf';
+  static const String robotoRobotoCondensedLightItalic = 'assets/fonts/roboto/Roboto-CondensedLightItalic.ttf';
+  static const String robotoRobotoCondensedRegular = 'assets/fonts/roboto/Roboto-CondensedRegular.ttf';
+  static const String robotoRobotoItalic = 'assets/fonts/roboto/Roboto-Italic.ttf';
+  static const String robotoRobotoLight = 'assets/fonts/roboto/Roboto-Light.ttf';
+  static const String robotoRobotoLightItalic = 'assets/fonts/roboto/Roboto-LightItalic.ttf';
+  static const String robotoRobotoMedium = 'assets/fonts/roboto/Roboto-Medium.ttf';
+  static const String robotoRobotoMediumItalic = 'assets/fonts/roboto/Roboto-MediumItalic.ttf';
+  static const String robotoRobotoRegular = 'assets/fonts/roboto/Roboto-Regular.ttf';
+  static const String robotoRobotoThin = 'assets/fonts/roboto/Roboto-Thin.ttf';
+  static const String robotoRobotoThinItalic = 'assets/fonts/roboto/Roboto-ThinItalic.ttf';
 
 }

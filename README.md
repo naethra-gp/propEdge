@@ -1,27 +1,35 @@
-# Prop Edge
+# prop_edge (PropEdge)
 
 <img height="75" src="assets/images/logo.png" alt="appLogo"> 
 
+<br/>
 
-> A new Flutter project.
+> PropEdge is a <b>Flutter Project</b>.
 
-## Flutter Details
 
-Flutter 3.16.9 channel stable
-Tools:
-• Dart 3.2.6
-• DevTools 2.28.5
+# Flutter Details
+Flutter Version 3.27.3<br/>
+Channel: Stable<br/>
+<b><i>Tools:-</b></i><br/>
+• Dart 3.6.1 <br/>
+• DevTools 2.40.2<br/>
+
+## Flutter Download
+
+- Stable Channel (macOS) [Download](https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_arm64_3.27.3-stable.zip)
+- Stable Channel (Windows) [Download](https://storage.googleapis.com/flutter_infra_release/releases/stable/windows/flutter_windows_3.27.3-stable.zip) <br/>
 
 
 ## Getting Started
+1. Clone the project using `git clone git_url`
+2. Change the project folder using `cd project_folder`
+3. Install packages using `flutter pub get`
+4. Run the project using `flutter run`
+5. Build the project using `flutter build`
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Project Menu
+- Assigned Properties
+- Submitted Case
+- Home Page (User Case Summary & Site Visit Data)
+- Reimbursement
+- Data Sync

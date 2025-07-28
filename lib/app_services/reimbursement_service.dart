@@ -1,4 +1,4 @@
-import '../app_config/index.dart';
+import '../app_config/app_endpoints.dart';
 import 'connection.dart';
 
 class ReimbursementService {
@@ -16,18 +16,4 @@ class ReimbursementService {
     var response = await connection.post(url, requestModel);
     return response;
   }
-
-  // deleteReimbursement(context, requestModel) async {
-  //   Connection connection = Connection();
-  //   var url = '${EndPoints.baseApi}/DeleteReimbursement';
-  //   var response = await connection.post(url, requestModel);
-  //   return response;
-  // }
-  //
-  // deleteReimbursementBill(context, requestModel) async {
-  //   Connection connection = Connection();
-  //   var url = '${EndPoints.baseApi}/DeleteReimbursementBill';
-  //   var response = await connection.post(url, requestModel);
-  //   return response;
-  // }
 }
