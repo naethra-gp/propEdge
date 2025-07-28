@@ -1,0 +1,54 @@
+# Flutter/Dart/Pub related
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+
+# O/I generated files
+flutter_*.png
+
+# Android related
+android/.gradle/
+android/captures/
+android/app/build/
+android/local.properties
+
+# iOS related
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+ios/Flutter/Flutter.podspec
+ios/Pods/
+ios/Runner.xcworkspace/
+ios/build/
+ios/.symlinks/
+ios/Podfile.lock
+
+# Xcode related
+*.xcworkspace
+*.xcuserstate
+*.xcuserdatad
+*.moved-aside
+DerivedData/
+.idea/
+
+# VS Code related
+.vscode/
+
+# macOS related
+.DS_Store
+
+# Misc
+*.log
+*.tmp
+*.swp
+*.lock
+
+# Database
+PropEdge_db.db
+
+# Other
+*.iml 
