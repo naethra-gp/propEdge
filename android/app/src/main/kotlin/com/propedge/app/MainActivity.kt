@@ -36,12 +36,7 @@ class MainActivity : FlutterActivity() {
                         .edit()
                         .putBoolean(KEY_MANUAL_STOP, false)
                         .apply()
-                    val intent = Intent(this, MyForegroundService::class.java)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        startForegroundService(intent)
-                    } else {
-                        startService(intent)
-                    }
+                    startService(Intent(this, MyForegroundService::class.java))
                     result.success("Service Started")
                 }
                 "stopForegroundService" -> {
@@ -53,11 +48,7 @@ class MainActivity : FlutterActivity() {
                     val stopIntent = Intent(this, MyForegroundService::class.java).apply {
                         putExtra("stopReason", "manual")
                     }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        startForegroundService(stopIntent)
-                    } else {
-                        startService(stopIntent)
-                    }
+                    startService(stopIntent)  // Send the reason to the service
                     Handler(Looper.getMainLooper()).postDelayed({
                         stopService(stopIntent)
                     }, 200)
@@ -94,23 +85,13 @@ class MainActivity : FlutterActivity() {
 
     if (!MyForegroundService.isServiceRunning(this) && !wasManuallyStopped) {
         Log.d("MainActivity", "Starting service on app launch")
-        val intent = Intent(this, MyForegroundService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent)
-        } else {
-            startService(intent)
-        }
+        startService(Intent(this, MyForegroundService::class.java))
     }
 
     // Start service if launched from notification tap
     if (intent?.getBooleanExtra("startFromNotification", false) == true) {
         Log.d("MainActivity", "Starting service from notification tap")
-        val intentService = Intent(this, MyForegroundService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intentService)
-        } else {
-            startService(intentService)
-        }
+        startService(Intent(this, MyForegroundService::class.java))
     }
 }
 
