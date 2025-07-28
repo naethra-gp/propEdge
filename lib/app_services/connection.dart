@@ -9,7 +9,6 @@ import 'package:retry/retry.dart';
 
 import '../app_config/app_constants.dart';
 import '../app_storage/secure_storage.dart';
-import '../app_utils/alert_service2.dart';
 import '../app_utils/app/app_button_widget.dart';
 import '../app_utils/app_widget/global_alert_widget.dart';
 

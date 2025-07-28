@@ -12,7 +12,6 @@ import 'package:prop_edge/app_theme/custom_theme.dart';
 import 'package:prop_edge/app_utils/alert_service.dart';
 import 'package:prop_edge/app_utils/form/text_form_widget.dart';
 
-import '../../../app_utils/alert_service2.dart';
 import '../../../app_utils/app/app_button_widget.dart';
 import '../../../app_utils/form/custom_single_dropdown.dart';
 
@@ -483,9 +482,6 @@ class _AreaFormState extends State<AreaForm> {
 
       landUseofNeighAreas =
           convertString(area['LandUseOfNeighboringAreas'].toString());
-      // if (landUseofNeighAreas == '1014') {
-      //   resedentialSelected = true;
-      // }
 
       infrastructureCondOfNeighAreas = convertString(
           area['InfrastructureConditionOfNeighboringAreas'].toString());
@@ -624,10 +620,7 @@ class _AreaFormState extends State<AreaForm> {
         'distance': TextEditingController(),
       };
     }
-    // String distanceLabel = 'Distance';
-    // if (checkboxId == 968 || checkboxId == 969) {
-    //   distanceLabel = 'Distance (in Km)';
-    // }
+
     return [
       Align(
         alignment: Alignment.centerLeft,

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:prop_edge/app_theme/app_color.dart';
-import 'package:prop_edge/app_utils/alert_service2.dart';
 import 'package:prop_edge/app_utils/alert_service.dart';
 import 'package:prop_edge/app_utils/app/app_button_widget.dart';
 import 'package:safe_device/safe_device.dart';
@@ -48,15 +47,6 @@ class _MainPageState extends State<MainPage> {
         resizeToAvoidBottomInset: false,
         appBar: AppBarWidget(
           title: appBarTitle,
-          // leading: TextButton(
-          //     onPressed: () {},
-          //     child: Text(
-          //       'Tracking',
-          //       style: TextStyle(
-          //         color: Colors.white,
-          //         decoration: TextDecoration.none,
-          //       ),
-          //     )),
         ),
         body: PopScope(
           canPop: false,
@@ -95,30 +85,6 @@ class _MainPageState extends State<MainPage> {
                   elevation: 16,
                   child: const Icon(LineAwesome.home_solid, size: 30),
                 ),
-                // Transform.translate(
-                //     offset: Offset(0, 10), // Moves text upwards
-                //     child: InkWell(
-                //       onTap: () {
-                //         print('Clicked');
-                //         Navigator.push(
-                //           context,
-                //           MaterialPageRoute(
-                //             builder: (context) => const ViewMapPage(),
-                //           ),
-                //         );
-                //       },
-                //       child: Padding(
-                //         padding: const EdgeInsets.all(8.0),
-                //         child: Text(
-                //           "Tracking",
-                //           style: TextStyle(
-                //             decoration: TextDecoration.none,
-                //             fontWeight: FontWeight.bold,
-                //             color: AppColors.primary,
-                //           ),
-                //         ),
-                //       ),
-                //     )),
               ],
             ),
           ],

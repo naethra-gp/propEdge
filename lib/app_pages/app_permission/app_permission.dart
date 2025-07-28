@@ -39,11 +39,6 @@ class _AppPermissionState extends State<AppPermission> {
       "description":
           "To ensure proper functionality, please disable battery optimization for this app."
     },
-    // {
-    //   "title": "Storage Permission",
-    //   "description":
-    //       "The app uses local storage to save customer property-related data in the local database."
-    // }
   ];
 
   @override
@@ -99,17 +94,6 @@ class _AppPermissionState extends State<AppPermission> {
         Permission.phone,
         Permission.notification,
       ].request();
-
-      // For Android 14+, request foreground service location permission
-      // if (Platform.isAndroid) {
-      //   final androidInfo = await DeviceInfoPlugin().androidInfo;
-      //   if (androidInfo.version.sdkInt >= 34) {
-      //     // Request location permission first
-      //     await Permission.location.request();
-      //     // Then request foreground service location permission
-      //     await Permission.locationAlways.request();
-      //   }
-      // }
 
       // Save permission status
       await _boxStorage.save("permission", "true");

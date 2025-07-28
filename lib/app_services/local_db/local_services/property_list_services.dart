@@ -43,20 +43,6 @@ class PropertyListService {
     });
   }
 
-  // updateLocalStatus(List request) async {
-  //   final db = await DatabaseServices.instance.database;
-  //   // return await db.rawUpdate(
-  //   //     "UPDATE ${Constants.propertyList} SET Status = ? WHERE PropId = ?", request);
-  //   try {
-  //     int count = await db.rawUpdate(
-  //         "UPDATE ${Constants.propertyList} SET Status = ?, SyncStatus = ?, PlLatitude = ?, PlLongitude = ? WHERE PropId = ?",
-  //         request);
-  //     return count;
-  //   } catch (e) {
-  //     return "error -> $e";
-  //   }
-  // }
-
   updateLocalStatus(List request) async {
     final db = await DatabaseServices.instance.database;
     // return await db.rawUpdate(

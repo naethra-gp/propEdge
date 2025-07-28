@@ -7,7 +7,6 @@ import 'package:prop_edge/app_pages/site_visit_form_page/view/widgets/measuremen
 import 'package:prop_edge/app_pages/site_visit_form_page/view/widgets/occupant_widget.dart';
 import 'package:prop_edge/app_pages/site_visit_form_page/view/widgets/stage_calculator_widget.dart';
 import 'package:prop_edge/app_pages/site_visit_form_page/view/widgets/upload_widget.dart';
-import 'package:prop_edge/app_utils/alert_service2.dart';
 import 'package:prop_edge/app_utils/alert_service.dart';
 
 import '../../../app_services/local_db/local_services/dropdown_services.dart';

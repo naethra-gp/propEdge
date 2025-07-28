@@ -10,7 +10,6 @@ import '../../../app_config/app_constants.dart';
 import '../../../app_services/local_db/local_services/local_services.dart';
 import '../../../app_theme/app_color.dart';
 import '../../../app_theme/custom_theme.dart';
-import '../../../app_utils/alert_service2.dart';
 import '../../../app_utils/app/app_button_widget.dart';
 // import '../../../app_utils/app/location_service.dart';
 import 'widgets/upload_form_dialog.dart';
@@ -486,62 +485,15 @@ class _UploadFormState extends State<UploadForm> {
           'Some of the Fields not filled in ${missingTabs.join(', ')}!');
       return;
     }
-    // PropertyLocationService pls = PropertyLocationService();
-    // LocationDetailServices lds = LocationDetailServices();
-    // CommentsServices ccs = CommentsServices();
-    // List pl = await pls.getPropertyLocation(widget.propId);
-    // List ld = await lds.read(widget.propId);
-    // List cc = await ccs.read(widget.propId);
-    // List lms = await locationMapService.read(widget.propId);
-    // List ss = await sketchService.read(widget.propId);
-    // List ps = await photographService.read(widget.propId);
-
-    // if (pl[0]['PropertyAddressAsPerSite'].toString().isEmpty) {
-    //   AlertService()
-    //       .errorToast("Address is mandatory in Property Tab");
-    // } else if ((ld[0]['Latitude'].toString().isEmpty ||
-    //     ld[0]['Latitude'].toString() == '0') &&
-    //     (ld[0]['Longitude'].toString().isEmpty ||
-    //         ld[0]['Longitude'].toString() == '0')) {
-    //   AlertService()
-    //       .errorToast("Lat & Lon is mandatory in Location Tab");
-    // } else if (cc[0]['Comment'].toString().isEmpty) {
-    //   AlertService()
-    //       .errorToast("Comment is mandatory in Comment Tab");
-    // } else if (lms.isEmpty) {
-    //   AlertService().errorToast(
-    //       "Location Photo is mandatory in Location Tab");
-    // } else if (ss.isEmpty) {
-    //   AlertService().errorToast(
-    //       "Sketch Photo is mandatory in Sketch Tab");
-    // } else if (ps.isEmpty) {
-    //   AlertService().errorToast(
-    //       "Photograph Photo is mandatory in Photograph Tab");
-    // } else {
-    //   AlertService().hideLoading();
-    //   alertService.confirmFinalSubmit(
-    //       context, msg, "Submit", "Review", () async {
-    //     Navigator.pushNamed(context, "siteVisitForm",
-    //         arguments: widget.propId.toString());
-    //   }, () async {
 
     PropertyListService service = PropertyListService();
 
     LocationData? currentLocation = await locationService.getCurrentLocation();
-    // String? plLat;
-    // String? plLong;
-    // if (currentLocation != null) {x
-    //   plLat = currentLocation.latitude.toString();
-    //   plLong = currentLocation.longitude.toString();
-    // }
-    // await locationService.saveLocation(currentLocation, 'PS');
     await trackingServices.insertLocation(currentLocation!, 'PS');
 
     List request = [
       Constants.status[2],
       "N",
-      // plLat,
-      // plLong,
       widget.propId.toString(),
     ];
     var result = await service.updateLocalStatus(request);
@@ -552,8 +504,6 @@ class _UploadFormState extends State<UploadForm> {
     }
     if (!mounted) return;
     Navigator.pushReplacementNamed(context, 'mainPage', arguments: 2);
-    // });
-    // }
   }
 
   bool validateForm() {
@@ -635,9 +585,6 @@ class _UploadFormState extends State<UploadForm> {
     if (bhkConfig.isEmpty && propertyType == "952") {
       missingTabs.add("Property Tab");
     }
-    // if (bhkConfig == null && propertyType == "952") {
-    //   missingTabs.add("Property Tab c2");
-    // }
 
     if ((kitchenAndCupboardsExisting == "Yes" && propertyType == "952") &&
         (kitchenTypeStr.isEmpty || kitchenTypeStr == "0")) {
@@ -648,11 +595,6 @@ class _UploadFormState extends State<UploadForm> {
       missingTabs.add("Property Tab");
     }
 
-    // if (propertyType == "952" &&
-    //     (kitchenTypeStr.isEmpty || kitchenTypeStr == "0")) {
-    //   missingTabs.add("Property Tab c5");
-    // }
-
     if ((noOfLifts.isEmpty) && propertyType != "958") {
       missingTabs.add("Property Tab");
     }
@@ -661,9 +603,6 @@ class _UploadFormState extends State<UploadForm> {
       missingTabs.add("Property Tab");
     }
 
-    // if (consOldOrNew == null && propertyType != "958") {
-    //   missingTabs.add("Property Tab c8");
-    // }
     if ((consOldOrNew.isEmpty || consOldOrNew == "0") &&
         propertyType != "958") {
       missingTabs.add("Property Tab");
@@ -678,9 +617,6 @@ class _UploadFormState extends State<UploadForm> {
         propertyType != "958") {
       missingTabs.add("Property Tab");
     }
-    // if ((currentConOfProp == null) && propertyType != "958") {
-    //   missingTabs.add("Property Tab c10");
-    // }
 
     if ((areaOfProp.isEmpty || areaOfProp == "0") &&
         (propertySubType == "8595" || propertySubType == "8594")) {

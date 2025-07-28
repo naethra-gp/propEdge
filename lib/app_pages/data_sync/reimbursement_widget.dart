@@ -124,8 +124,5 @@ class _ReimbursementWidgetState extends State<ReimbursementWidget> {
 
   deleteLocalSql(String id) async {
     await localService.deleteById(id);
-    // lastUpdate = DateFormat('dd-MMM-yyyy hh:mm:ss a').format(DateTime.now());
-    // secureStorage.save("reimbursementUpdate", lastUpdate);
-    // setState(() {});
   }
 }

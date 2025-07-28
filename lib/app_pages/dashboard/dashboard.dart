@@ -43,14 +43,10 @@ class _DashboardState extends State<Dashboard> {
   BoxStorage boxStorage = BoxStorage();
 
   LocationService tracking = LocationService();
-  // LocService locService = LocService();
   List locList = [];
-  // bool isTripStarted = false;
-  // bool isTripEnded = false;
   List latLongList = [];
   bool strtClick = false;
   bool endclick = false;
-  // Timer? _timer;
 
   @override
   void initState() {
@@ -60,7 +56,6 @@ class _DashboardState extends State<Dashboard> {
     _initializeData();
     searchController.addListener(_searchListener);
     loadState();
-    // _startTimer();
   }
 
   @override
@@ -68,7 +63,6 @@ class _DashboardState extends State<Dashboard> {
     super.didChangeDependencies();
     // Refresh state when returning to dashboard
     loadState();
-    // _startTimer();
   }
 
   // Initialize data on page load
@@ -79,29 +73,6 @@ class _DashboardState extends State<Dashboard> {
       getUserCaseSummary(),
     ]);
   }
-
-  // void _startTimer() {
-  //   debugPrint('------> start timer called ..');
-  //   _timer = Timer.periodic(Duration(seconds: 30), (timer) async {
-  //     String now = DateFormat('HH:mm').format(DateTime.now());
-  //     if (now == '22:59') {
-  //       debugPrint('---> if called');
-
-  //       String timestamp =
-  //           DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
-  //       List<String> endTripList = await boxStorage.get('end_trip_date') ?? [];
-  //       endTripList.add(timestamp);
-  //       await boxStorage.save('end_trip_date', endTripList);
-
-  //       setState(() {
-  //         strtClick = false;
-  //         endclick = true;
-  //       });
-
-  //       timer.cancel(); // stop timer after condition is met
-  //     }
-  //   });
-  // }
 
   void loadState() async {
     String todayDate = DateTime.now().toString().substring(0, 10);
@@ -139,31 +110,6 @@ class _DashboardState extends State<Dashboard> {
           child: Column(
             children: <Widget>[
               CustomTheme.defaultSize,
-              // Padding(
-              //   padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 0),
-              //   child: SizedBox(
-              //     height: 30,
-              //     width: double.infinity,
-              //     child: ElevatedButton(
-              //         onPressed: () {
-              //           Navigator.push(
-              //             context,
-              //             MaterialPageRoute(
-              //               builder: (context) => const ViewMapPage(),
-              //             ),
-              //           );
-              //         },
-              //         style: ElevatedButton.styleFrom(
-              //             elevation: 3, backgroundColor: Colors.teal[300]),
-              //         child: Text(
-              //           'View Tracking List',
-              //           style: TextStyle(fontSize: 14),
-              //         )),
-              //   ),
-              // ),
-              // SizedBox(
-              //   height: 5,
-              // ),
               if (userSummary.isNotEmpty) ...[
                 _buildSummaryCards(),
                 CustomTheme.defaultSize,

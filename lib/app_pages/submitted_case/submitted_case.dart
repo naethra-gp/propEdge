@@ -44,26 +44,6 @@ class _SubmittedCaseState extends State<SubmittedCase> {
         child: Column(
           children: <Widget>[
             const SizedBox(height: 10),
-            // SizedBox(
-            //   height: 30,
-            //   width: double.infinity,
-            //   child: ElevatedButton(
-            //       onPressed: () {
-            //         Navigator.push(
-            //           context,
-            //           MaterialPageRoute(
-            //             builder: (context) => const ViewMapPage(),
-            //           ),
-            //         );
-            //       },
-            //       style: ElevatedButton.styleFrom(
-            //           elevation: 3, backgroundColor: Colors.teal[300]),
-            //       child: Text(
-            //         'View tracking List',
-            //         style: TextStyle(fontSize: 14),
-            //       )),
-            // ),
-            // const SizedBox(height: 10),
             SizedBox(
               height: 50,
               child: SearchWidget(

@@ -224,58 +224,6 @@ class _ReimbursementPageState extends State<ReimbursementPage> {
                 icon: Icon(Icons.more_vert),
                 offset: Offset(0, 40),
               ),
-              // trailing: Row(
-              //   mainAxisSize: MainAxisSize.min,
-              //   children: [
-              //     IconButton(
-              //       onPressed: () {
-              //         Navigator.pushNamed(context, 'local_view_details',
-              //             arguments: [list]);
-              //       },
-              //       icon: const Icon(
-              //         LineAwesome.eye,
-              //         size: 20,
-              //         color: AppColors.primary,
-              //       ),
-              //     ),
-              //     IconButton(
-              //       onPressed: () {
-              //         Navigator.pushNamed(context, 'addReimbursement',
-              //             arguments: list);
-              //       },
-              //       icon: const Icon(
-              //         color: AppColors.primary,
-              //         Icons.edit_outlined,
-              //         size: 20,
-              //       ),
-              //     ),
-              //     IconButton(
-              //       onPressed: () async {
-              //         bool confirm = await alertService.confirmAlert(
-              //           context,
-              //           'Confirm',
-              //           "Would you like to delete this bill?",
-              //         );
-              //         if (confirm) {
-              //           int result = await localService.removeBill([
-              //             "N",
-              //             "N",
-              //             list['primaryId'].toString(),
-              //           ]);
-              //           if (result == 1) {
-              //             if (!mounted) return;
-              //             getReimbursement();
-              //           }
-              //         }
-              //       },
-              //       icon: const Icon(
-              //         Icons.delete_forever_outlined,
-              //         color: Colors.redAccent,
-              //         size: 20,
-              //       ),
-              //     ),
-              //   ],
-              // ),
             ),
           ),
         );

@@ -188,47 +188,12 @@ class _LoginPageState extends State<LoginPage> {
       debugPrint("Error getting location: $e");
       alertService.successToast(
           'Location service has been stopped\nPlease re-enter your login details again');
-      // Navigator.pushReplacementNamed(context, 'login');
       alertService.hideLoading();
-      // alertService.errorToast(
-      //     'Error getting location. Please check your location settings.');
     }
   }
 
   formSubmit() {
     alertService.showLoading("Verifying Login Details...");
-    // TODO: CHECK BEFORE LIVE MODE ---
-    // loginRequestModel.userName = "liveuser@propequity.in";
-    // loginRequestModel.password = "Live@1234";
-    // loginRequestModel.iMEINumber = "8ef32d2c35806173";
-
-    // loginRequestModel.userName = "sriram.g@naethra.com";
-    // loginRequestModel.password = "S@123456";
-    // loginRequestModel.iMEINumber = "3bdd8b48a28b16a7";
-
-    // loginRequestModel.userName = "eswara2pandiyan4@gmail.com";
-    // loginRequestModel.password = "E@123456";
-    // loginRequestModel.iMEINumber = "34bf809de72ff461";
-
-    // loginRequestModel.userName = "eswara2pandiyan4@gmail.com";
-    // loginRequestModel.password = "Ntpl@123";
-    // loginRequestModel.iMEINumber = "0cfb91b36ff4c02f";
-
-    // loginRequestModel.userName = "farzanashabo@naethra.com";
-    // loginRequestModel.password = "Ntpl@123";
-    // loginRequestModel.iMEINumber = "f754ed13242a38b9";
-
-    // loginRequestModel.userName = "manjeet@propequity.in";
-    // loginRequestModel.password = "123456";
-    // loginRequestModel.iMEINumber = "0677e72e3362b529";
-
-    // loginRequestModel.userName = "prakash.m@naethra.com";
-    // loginRequestModel.password = "Ntpl@123";
-    // loginRequestModel.iMEINumber = "c7608ed043b32c65";
-
-    // loginRequestModel.userName = "ashutosh.thakur@propequity.in";
-    // loginRequestModel.password = "A@12345";
-    // loginRequestModel.iMEINumber = "bb9b47d7c3371160";
 
     /// LIVE ---
     if (loginRequestModel.latitude == null ||
@@ -239,7 +204,6 @@ class _LoginPageState extends State<LoginPage> {
         double.parse(loginRequestModel.latitude!) > 90 ||
         double.parse(loginRequestModel.longitude!) < -180 ||
         double.parse(loginRequestModel.longitude!) > 180) {
-      // alertService.errorToast('Location Error. Unable to Login');
       alertService.hideLoading();
       return;
     }
@@ -285,11 +249,6 @@ class _LoginPageState extends State<LoginPage> {
           List<String> startTripList =
               await secureStorage.get('start_trip_date') ?? [];
 
-          // await secureStorage.save(
-          //     'login_latitude', loginRequestModel.latitude);
-          // await secureStorage.save(
-          //     'login_longitude', loginRequestModel.longitude);
-
           String timestamp =
               DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
 
@@ -302,7 +261,6 @@ class _LoginPageState extends State<LoginPage> {
           bool isFirstLoginOfDay = lastLoginDate != today;
 
           bool firstLogin = secureStorage.get('fmtLogin') ?? false;
-          // bool autoTriggerd = secureStorage.get('autoTriggered') ?? false;
           debugPrint('---->before firstLogin ${firstLogin}');
           if (firstLogin) {
             debugPrint('---->after firstLogin ${firstLogin}');

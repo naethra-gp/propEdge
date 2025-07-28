@@ -42,14 +42,6 @@ class _SiteVisitSyncWidgetState extends State<SiteVisitSyncWidget> {
         if (!widget.hasInternet) {
           alertService.errorToast(Constants.checkInternetMsg);
         } else {
-          // bool serviceEnabled = await locationService.location.serviceEnabled();
-          // if (!serviceEnabled) {
-          //   serviceEnabled = await locationService.location.requestService();
-          //   if (!serviceEnabled) {
-          //     alertService.errorToast('Location services are disabled.');
-          //     return;
-          //   }
-          // }
           bool? confirm = await alertService.confirmAlert(
             context,
             null,

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:prop_edge/app_utils/alert_service2.dart';
 import 'package:prop_edge/app_utils/alert_service.dart';
 import 'package:prop_edge/app_utils/form/custom_single_dropdown.dart';
 
@@ -289,55 +288,6 @@ class _PropertyFormState extends State<PropertyForm> {
                   ),
                 ),
               ),
-              // FormField<String>(
-              //   validator: (value) {
-              //     if (value == null) {
-              //       return "Address Matching is Mandatory!";
-              //     }
-              //     return null;
-              //   },
-              //   builder: (FormFieldState<String> state) {
-              //     return Column(
-              //       crossAxisAlignment: CrossAxisAlignment.start,
-              //       children: [
-              //         Row(
-              //           children: [
-              //             Radio<String>(
-              //               value: 'Yes',
-              //               groupValue: addressMatching,
-              //               onChanged: (String? value) async {
-              //                 List d = await cService.readById(widget.propId);
-              //                 addressMatching = value.toString();
-              //                 propertyAddressCtrl.text =
-              //                     d[0]['PropertyAddress'];
-              //                 state.didChange(value);
-              //                 setState(() {});
-              //               },
-              //             ),
-              //             Text("Yes", style: CustomTheme.formFieldStyle),
-              //             SizedBox(width: 50),
-              //             Radio<String>(
-              //               value: 'No',
-              //               groupValue: addressMatching,
-              //               onChanged: (String? value) {
-              //                 addressMatching = value.toString();
-              //                 propertyAddressCtrl.text = '';
-              //                 state.didChange(value);
-              //                 setState(() {});
-              //               },
-              //             ),
-              //             Text("No", style: CustomTheme.formFieldStyle),
-              //           ],
-              //         ),
-              //         if (state.hasError)
-              //           Text(
-              //             state.errorText!,
-              //             style: CustomTheme.errorStyle,
-              //           ),
-              //       ],
-              //     );
-              //   },
-              // ),
               Row(
                 children: [
                   Radio<String>(
@@ -774,19 +724,6 @@ class _PropertyFormState extends State<PropertyForm> {
                 CustomTheme.defaultSize,
 
                 /// *  Approximate Age of Property (in years)  (Not to open for Plots) >> only numbers
-                // CustomTextFormField(
-                //   title: 'Approximate Age of Property (in years)',
-                //   controller: ageOfPropertyCtrl,
-                //   required: true,
-                //   validator: (value) {
-                //     if (value == null || value.toString().isEmpty) {
-                //       return "Mandatory Field!";
-                //     }
-                //     return null;
-                //   },
-                //   // validator: (value) =>
-                //   //     value == null ? "Mandatory Field!" : null,
-                // ),
                 CustomTextFormField(
                   title: 'Approximate Age of Property (in years)',
                   controller: ageOfPropertyCtrl,
@@ -903,24 +840,6 @@ class _PropertyFormState extends State<PropertyForm> {
                     ],
                   ),
                 ),
-                // CustomTextFormField(
-                //   title: 'Plot Area',
-                //   controller: plotAreaCtrl,
-                //   keyboardType: TextInputType.number,
-                //   inputFormatters: [
-                //     FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
-                //   ],
-                //   validator: (value) {
-                //     final pattern = RegExp(r'^\d{2,5}(\.\d{1,2})?$');
-                //     if (value.isEmpty || !pattern.hasMatch(value)) {
-                //       return 'Enter a number with 2-5 digits.';
-                //     }
-                //     return null;
-                //   },
-                //   onChanged: (value) {
-                //     convertArea();
-                //   },
-                // ),
                 CustomTheme.defaultSize,
                 Row(
                   children: [

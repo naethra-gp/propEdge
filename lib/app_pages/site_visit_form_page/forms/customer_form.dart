@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:prop_edge/app_utils/alert_service2.dart';
 import 'package:prop_edge/app_utils/alert_service.dart';
 
 import '../../../app_config/app_constants.dart';

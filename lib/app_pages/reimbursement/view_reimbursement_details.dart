@@ -133,8 +133,4 @@ class _ViewReimbursementDetailsState extends State<ViewReimbursementDetails> {
       ),
     );
   }
-
-  // getEmptyToNil(String value) {
-  //   return value == "" ? "NIL" : value;
-  // }
 }

@@ -7,19 +7,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:prop_edge/app_utils/alert_service.dart';
 import 'package:prop_edge/app_utils/app/common_functions.dart';
 import 'package:prop_edge/app_utils/app/logger.dart';
 import 'package:prop_edge/location_service.dart';
-// import 'package:prop_edge/app_utils/app/location_service.dart';
 import 'app_config/app_constants.dart';
 import 'app_config/app_routes.dart';
 import 'app_services/local_db/local_services/tracking_service.dart';
 import 'app_storage/secure_storage.dart';
 import 'app_theme/index.dart';
-import 'app_utils/alert_service2.dart';
 
 const MethodChannel _locationChannel =
     MethodChannel('com.propedge.app/location_service');
@@ -71,7 +68,6 @@ void startListeningToLocation() {
         final double latitude = args['latitude'];
         final double longitude = args['longitude'];
         final String trackStatus = args['trackStatus'];
-        final now = DateTime.now();
 
         debugPrint('Map foreground service: $args');
         commonFunctions.logToFile('Insert Location called...');
@@ -89,13 +85,6 @@ void startListeningToLocation() {
     }
   });
 }
-
-// Future<void> getLocationFromGoogle() async {
-//   final pos = await Geolocator.getCurrentPosition();
-//   await TrackingServices()
-//       .insertLocationFromRaw(pos.latitude, pos.longitude, '');
-//   print('position lat ${pos.latitude} , position long ${pos.longitude}');
-// }
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -154,24 +143,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     );
   }
 }
-
-// class MyApp extends StatelessWidget {
-//   const MyApp({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'PropEdge',
-//       debugShowCheckedModeBanner: false,
-//       initialRoute: 'splash',
-//       builder: EasyLoading.init(),
-//       onGenerateRoute: AppRoute.allRoutes,
-//       navigatorKey: AlertService.navigatorKey,
-//       themeMode: ThemeMode.system,
-//       theme: AppThemes.lightTheme,
-//     );
-//   }
-// }
 
 Future<bool> isTripInTrackingState() async {
   BoxStorage boxStorage = BoxStorage();

@@ -42,7 +42,6 @@ class _SplashScreenState extends State<SplashScreen> {
     // Check if user has granted necessary permissions
     final permission = _secureStorage.get("permission");
     final permissionKey = _secureStorage.containsKey("permission");
-    final firstLogin = _secureStorage.get("fmtLogin");
     final firstLoginKey = _secureStorage.containsKey("fmtLogin");
 
     debugPrint('permission: $permission');

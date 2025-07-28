@@ -6,7 +6,6 @@ import 'package:prop_edge/app_utils/app/common_functions.dart';
 import 'package:prop_edge/main.dart';
 import 'dart:math' as math;
 import '../../../app_utils/app/logger.dart';
-import '../../../location_service.dart';
 import '../db/database_services.dart';
 
 class TrackingServices {
@@ -45,20 +44,6 @@ class TrackingServices {
     });
   }
 
-  // readLastLatLon() async {
-  //   final db = await DatabaseServices.instance.database;
-  //   final result = await db.rawQuery(
-  //       "SELECT Latitude, Longitude FROM ${Constants.locationTracking} ORDER BY primaryId DESC LIMIT 1");
-  //   if (result.isNotEmpty) {
-  //     final row = result.first;
-  //     final double lat = row['Latitude'] as double;
-  //     final double lon = row['Longitude'] as double;
-  //     print('lat $lat long $lon');
-  //     return {'latitude': lat, 'longitude': lon};
-  //   } else {
-  //     return null; // or return default value if needed
-  //   }
-  // }
   readLastLatLon() async {
     final db = await DatabaseServices.instance.database;
     final result = await db.rawQuery('''
@@ -95,11 +80,7 @@ class TrackingServices {
     debugPrint('--- Lat: $latitude, Lng: $longitude ----');
     LogService().w('--- Lat: $latitude, Lng: $longitude ----');
     var distance = 0.0;
-    // int count = await LocationService().getDataforLogin();
-    // if (count == 0) {
-    // await insertLocationToDb(latitude, longitude, "S");
-    // commonFunctions.logToFile('----> Count 0 executed..');
-    // } else {
+
     // If this is a start or end point, always insert
     if (trackStatus == 'S' || trackStatus == 'E') {
       await insertLocationToDb(latitude, longitude, trackStatus);
@@ -137,7 +118,6 @@ class TrackingServices {
       } else {
         await insertLocationToDb(latitude, longitude, "");
       }
-      // }
     }
   }
 
@@ -217,11 +197,6 @@ class TrackingServices {
     return await db.rawQuery("SELECT * FROM ${Constants.locationTracking}");
   }
 
-  // readBySync() async {
-  //   final db = await DatabaseServices.instance.database;
-  //   return await db.rawQuery(
-  //       "SELECT * FROM ${Constants.locationTracking} WHERE SyncStatus = 'N'");
-  // }
   readBySync() async {
     final db = await DatabaseServices.instance.database;
     return await db.rawQuery(

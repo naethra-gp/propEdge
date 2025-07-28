@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:prop_edge/app_utils/alert_service.dart';
@@ -16,7 +14,6 @@ import '../../app_services/local_db/db/database_services.dart';
 import '../../app_services/local_db/local_services/tracking_service.dart';
 import '../../app_services/site_visit_service.dart';
 import '../../app_storage/secure_storage.dart';
-import 'app_utils/alert_service2.dart';
 
 class LocationService {
   static final LocationService _instance = LocationService._internal();
@@ -133,30 +130,12 @@ class LocationService {
           fatal: true, reason: "Error stopping foreground service");
       await CommonFunctions().logToFile('Error stopping foreground service');
     }
-    // // Upload location tracking data after stopping
-    // try {
-    //   // await uploadLocationTracking(navigatorKey.currentContext);
-    //   await uploadDataBydate();
-    //   debugPrint("Location tracking data uploaded successfully.");
-    // } catch (e) {
-    //   debugPrint("Error uploading location tracking data: $e");
-    //   // Don't show error toast here since context might be null
-    // }
-    // }
   }
 
   /// Save location data to local DB with track status and List
   Future<void> _saveLocation(LocationData? locationData, String status) async {
     // Save to local DB
     await _trackingServices.insertLocation(locationData!, status);
-
-    // Save to List
-    // locationDataList.add({
-    //   'latitude': locationData.latitude,
-    //   'longitude': locationData.longitude,
-    //   'timestamp': DateTime.now().toString(),
-    //   'status': status,
-    // });
   }
 
   Future<void> _saveMannualEnd() async {
@@ -256,36 +235,6 @@ class LocationService {
     }
     return false;
   }
-
-  // void startServiceChecker() {
-  //   _checkServiceTimer?.cancel(); // Clear any previous timer
-  //   _checkServiceTimer =
-  //       Timer.periodic(const Duration(minutes: 1), (timer) async {
-  //     try {
-  //       final isRunning =
-  //           await MethodChannel('com.propedge.app/location_service')
-  //               .invokeMethod<bool>('isServiceRunning');
-
-  //       if (isRunning != true &&
-  //           isTripInTrackingState() &&
-  //           !isTimeBetween11And1159PM()) {
-  //         print('Foreground service is not running. Restarting...');
-  //         // logService.i('Foreground service is not running. Restarting...');
-  //         commonFunctions
-  //             .logToFile('Foreground service is not running. Restarting...');
-  //         await MethodChannel('com.propedge.app/location_service')
-  //             .invokeMethod('startForegroundService');
-  //       } else {
-  //         print('Foreground service is running.');
-  //         // logService.i('Foreground service is running.');
-  //         commonFunctions.logToFile('Foreground service is running.');
-  //       }
-  //     } catch (e) {
-  //       print('Error checking service status: $e');
-  //       commonFunctions.logToFile('Error checking service status: $e');
-  //     }
-  //   });
-  // }
 
   bool isTimeBetween11And1159PM() {
     final now = DateTime.now();
@@ -426,91 +375,6 @@ class LocationService {
     await db.rawQuery('DELETE FROM ${Constants.locationTracking}');
     alertService.hideLoading();
   }
-
-  // uploadLocationTrackingAuto() async {
-  //   /// GET TOKEN
-  //   BoxStorage secureStorage = BoxStorage();
-  //   String token = "";
-
-  //   token = secureStorage.getLoginToken();
-
-  //   TrackingServices trackingServices = TrackingServices();
-  //   SiteVisitService siteVisitService = SiteVisitService();
-
-  //   try {
-  //     List locationTracking = await trackingServices.readBySync();
-  //     debugPrint(
-  //         '---> Location Tracking Data Count: ${locationTracking.length}');
-  //     debugPrint('---> Location Tracking Raw Data: $locationTracking');
-
-  //     if (locationTracking.isNotEmpty) {
-  //       // Group data by date
-  //       Map<String, List<Map<String, dynamic>>> groupedByDate = {};
-  //       List<String> keysToRemove = [
-  //         'primaryId',
-  //         'SyncStatus'
-  //       ]; // Specify keys you want to remove
-
-  //       for (var entry in locationTracking) {
-  //         String timestamp = entry["Timestamp"];
-  //         String date = timestamp.split(" ")[0]; // Extract date part only
-
-  //         Map<String, dynamic> cleanedEntry = Map.from(entry);
-
-  //         for (String key in keysToRemove) {
-  //           cleanedEntry.remove(key);
-  //         }
-
-  //         groupedByDate.putIfAbsent(date, () => []).add(cleanedEntry);
-  //       }
-
-  //       // var sortedMap = SplayTreeMap<String, List<String>>.from(groupedByDate);
-  //       // Send data per date group
-  //       for (var date in groupedByDate.keys) {
-  //         List<Map<String, dynamic>> dataForDate = groupedByDate[date]!;
-
-  //         var params = {
-  //           "locationTracking": dataForDate,
-  //           "loginToken": {
-  //             "Token": token,
-  //           },
-  //         };
-
-  //         debugPrint('-----> group by date : ${groupedByDate}');
-
-  //         debugPrint('---> Sending Location Tracking Params: $params');
-
-  //         var response =
-  //             await siteVisitService.saveLocationTrackingDetails(params);
-  //         debugPrint('---> Location Tracking Response: $response');
-
-  //         if (response != null && response['Status'] != null) {
-  //           commonFunctions
-  //               .logToFile('Location Tracking Saved Successfully and deleted.');
-  //           // if (response['Status']['IsSuccess'] == true) {
-  //           //   debugPrint('---> Location Tracking Saved Successfully. <---');
-  //           //   logService.i('Location Tracking Saved Successfully and deleted.');
-  //           //   // await deleteLocalData(); // Uncomment if needed
-  //           // } else {
-  //           //   debugPrint(
-  //           //       '---> Location Tracking Save Failed: ${response['Status']['Message']} <---');
-  //           //   logService.i(
-  //           //       '---> Location Tracking Save Failed: ${response['Status']['Message']} <---');
-  //           // }
-  //           await deleteLocalData();
-  //           await _secureStorage.save('logStatus', true);
-  //         } else {
-  //           debugPrint('---> Invalid response format from server <---');
-  //         }
-  //       }
-  //     } else {
-  //       debugPrint('---> No Location Tracking Data to Save <---');
-  //     }
-  //   } catch (e, stackTrace) {
-  //     debugPrint('---> Error in uploadLocationTracking: $e <---');
-  //     debugPrint('---> Stack Trace: $stackTrace <---');
-  //   } finally {}
-  // }
 
   uploadLocationTrackingAuto() async {
     /// GET TOKEN

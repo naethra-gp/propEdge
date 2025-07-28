@@ -192,23 +192,6 @@ class _AddReimbursementState extends State<AddReimbursement> {
                     ],
                   ),
                   CustomTheme.defaultSize,
-                  // CustomTextFormField(
-                  //   title: "Nature Of Expense",
-                  //   controller: expenseCtrl,
-                  //   required: true,
-                  //   validator: (value) {
-                  //     if (value.toString().trim().isEmpty) {
-                  //       return "Mandatory field!";
-                  //     }
-                  //     if (value == "00" || value == "0") {
-                  //       return "Invalid value!";
-                  //     }
-                  //     return null;
-                  //   },
-                  //   onSaved: (value) {
-                  //     _requestModel.natureOfExpense = value;
-                  //   },
-                  // ),
                   CustomSingleDropdown(
                     title: 'Nature Of Expense',
                     required: true,
@@ -272,12 +255,6 @@ class _AddReimbursementState extends State<AddReimbursement> {
                           onSaved: (value) {
                             _requestModel.totalAmount = value;
                           },
-                          // validator: (value) {
-                          //   if (value.isEmpty) {
-                          //     return "Mandatory field!";
-                          //   }
-                          //   return null;
-                          // },
                         ),
                       ),
                     ],
@@ -316,7 +293,6 @@ class _AddReimbursementState extends State<AddReimbursement> {
                       child: Text(
                         "Select Upload Option",
                         style: CustomTheme.formLabelStyle,
-                        // style: CustomTheme.formLabelStyle,
                       ),
                     ),
                     CustomTheme.defaultSize,
@@ -594,7 +570,6 @@ class _AddReimbursementState extends State<AddReimbursement> {
         String fd = DateFormat('dd-MMM-yyyy').format(picked);
         selectedDate = picked;
         expenseDateCtrl.text = fd;
-        // expenseDateCtrl.text = picked.toLocal().toString().split(' ')[0];
       });
     }
   }

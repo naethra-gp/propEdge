@@ -209,16 +209,6 @@ class PropertyExpansionWidget extends StatelessWidget {
                         height: 50.0,
                         child: ElevatedButton(
                           onPressed: () async {
-                            // BoxStorage boxStorage = BoxStorage();
-                            // bool isInTrackingState =
-                            //     await boxStorage.isTripInTrackingState();
-
-                            // if (!isInTrackingState) {
-                            //   AlertService().errorToast(
-                            //       "You can only upload forms during an active trip");
-                            //   return;
-                            // }
-
                             debugPrint(
                                 "--- Uploading ${item['PropId'].toString()} ---");
                             uploadLocalToLive(item['PropId'].toString());
@@ -266,44 +256,6 @@ class PropertyExpansionWidget extends StatelessWidget {
       return true;
     }
     return false;
-
-    // if (startTripList.isEmpty) return false;
-
-    // // Get the latest start and end times for today
-    // DateTime? lastStartTime;
-    // DateTime? lastEndTime;
-
-    // // Find the latest start time for today
-    // for (String startTime in startTripList) {
-    //   if (startTime.substring(0, 10) == todayDate) {
-    //     DateTime dateTime = DateTime.parse(startTime.replaceAll(' ', 'T'));
-    //     if (lastStartTime == null || dateTime.isAfter(lastStartTime)) {
-    //       lastStartTime = dateTime;
-    //     }
-    //   }
-    // }
-
-    // // Find the latest end time for today
-    // for (String endTime in endTripList) {
-    //   if (endTime.substring(0, 10) == todayDate) {
-    //     DateTime dateTime = DateTime.parse(endTime.replaceAll(' ', 'T'));
-    //     if (lastEndTime == null || dateTime.isAfter(lastEndTime)) {
-    //       lastEndTime = dateTime;
-    //     }
-    //   }
-    // }
-
-    // debugPrint('---> Last Start Time: $lastStartTime');
-    // debugPrint('---> Last End Time: $lastEndTime');
-
-    // // Trip is active if:
-    // // 1. We have a start time today AND
-    // // 2. Either there's no end time OR the last start is after the last end
-    // bool isActive = lastStartTime != null &&
-    //     (lastEndTime == null || lastStartTime.isAfter(lastEndTime));
-
-    // debugPrint('---> Trip is active: $isActive');
-    // return isActive;
   }
 
   maskNumber(item) {
