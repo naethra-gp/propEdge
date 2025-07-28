@@ -7,13 +7,14 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:prop_edge/app_utils/alert_service.dart';
 
 import '../../../../app_config/app_constants.dart';
 import '../../../../app_services/local_db/local_services/local_services.dart';
 import '../../../../app_storage/local_storage.dart';
 import '../../../../app_theme/app_color.dart';
 import '../../../../app_theme/custom_theme.dart';
-import '../../../../app_utils/alert_service.dart';
+import '../../../../app_utils/alert_service2.dart';
 import '../../../../app_utils/app/app_bar.dart';
 import '../../../../app_utils/app/app_button_widget.dart';
 import '../../../../app_utils/form/text_form_widget.dart';

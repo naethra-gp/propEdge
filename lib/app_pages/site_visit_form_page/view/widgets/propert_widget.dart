@@ -125,12 +125,12 @@ class PropertyWidget extends StatelessWidget {
         SizedBox(height: 10.0),
         RowDetailsWidget(
           label: "No Of Lifts",
-          value: val['NoOfLifts'].toString(),
+          value: val['NoOfLifts']?.toString() ?? '0',
         ),
         SizedBox(height: 10.0),
         RowDetailsWidget(
           label: "No Of Staircases",
-          value: val['NoOfStaircases'].toString(),
+          value: val['NoOfStaircases']?.toString() ?? '0',
         ),
         SizedBox(height: 10.0),
         RowDetailsWidget(

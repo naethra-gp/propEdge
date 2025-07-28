@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:prop_edge/app_utils/alert_service2.dart';
 import 'package:prop_edge/app_utils/alert_service.dart';
 import 'package:prop_edge/app_utils/form/custom_single_dropdown.dart';
 
@@ -543,6 +544,10 @@ class _PropertyFormState extends State<PropertyForm> {
                             value == null ? "Mandatory Field!" : null,
                         onChanged: (value) {
                           selectedStructure = value.toString();
+                          if (selectedStructure != "1007") {
+                            structureOthersCtrl
+                                .clear(); // Clear text when not "Others"
+                          }
                           setState(() {});
                         },
                       ),
@@ -552,6 +557,7 @@ class _PropertyFormState extends State<PropertyForm> {
                       child: CustomTextFormField(
                         title: 'Others',
                         controller: structureOthersCtrl,
+                        readOnly: selectedStructure != "1007",
                       ),
                     ),
                   ],
@@ -571,6 +577,10 @@ class _PropertyFormState extends State<PropertyForm> {
                         title: 'Floor',
                         onChanged: (value) {
                           selectedFloor = value.toString();
+                          if (selectedFloor != "1007") {
+                            floorOthersCtrl
+                                .clear(); // Clear text when not "Others"
+                          }
                           setState(() {});
                         },
                       ),
@@ -580,6 +590,7 @@ class _PropertyFormState extends State<PropertyForm> {
                       child: CustomTextFormField(
                         title: 'Others',
                         controller: floorOthersCtrl,
+                        readOnly: selectedFloor != "1008",
                       ),
                     ),
                   ],
@@ -763,19 +774,51 @@ class _PropertyFormState extends State<PropertyForm> {
                 CustomTheme.defaultSize,
 
                 /// *  Approximate Age of Property (in years)  (Not to open for Plots) >> only numbers
+                // CustomTextFormField(
+                //   title: 'Approximate Age of Property (in years)',
+                //   controller: ageOfPropertyCtrl,
+                //   required: true,
+                //   validator: (value) {
+                //     if (value == null || value.toString().isEmpty) {
+                //       return "Mandatory Field!";
+                //     }
+                //     return null;
+                //   },
+                //   // validator: (value) =>
+                //   //     value == null ? "Mandatory Field!" : null,
+                // ),
                 CustomTextFormField(
                   title: 'Approximate Age of Property (in years)',
                   controller: ageOfPropertyCtrl,
                   required: true,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(3),
+                  ],
                   validator: (value) {
                     if (value == null || value.toString().isEmpty) {
                       return "Mandatory Field!";
                     }
+
+                    final int? age = int.tryParse(value);
+                    if (age == null) return 'Enter a valid number';
+
+                    if (selectedConstruction == "983" &&
+                        (age < 0 || age > 10)) {
+                      return 'Enter a value between >=10 and <=0';
+                    } else if (selectedConstruction == "984" &&
+                        (age < 10 || age > 20)) {
+                      return 'Enter a value between <=10 and >=20';
+                    } else if (selectedConstruction == "985" &&
+                        (age < 20 || age > 100)) {
+                      return 'Enter a value >= 20 (max 100)';
+                    }
+
                     return null;
                   },
-                  // validator: (value) =>
-                  //     value == null ? "Mandatory Field!" : null,
                 ),
+
                 CustomTheme.defaultSize,
 
                 /// * Current Condition of Property: (Not to open for Plots) (dropdown)

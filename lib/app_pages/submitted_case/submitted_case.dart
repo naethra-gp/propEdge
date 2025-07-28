@@ -1,10 +1,11 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:prop_edge/app_utils/alert_service.dart';
+import 'package:prop_edge/app_utils/app/common_functions.dart';
 
 import '../../app_services/submitted_case_services.dart';
 import '../../app_storage/secure_storage.dart';
-import '../../app_utils/alert_service.dart';
 import '../../app_utils/app/search_widget.dart';
 import '../../app_utils/app_widget/no_data_found.dart';
 import 'widgets/case_expansion_widget.dart';
@@ -28,6 +29,8 @@ class _SubmittedCaseState extends State<SubmittedCase> {
   void initState() {
     debugPrint("----> Submitted Case Page <----");
     super.initState();
+    CommonFunctions().loadData(context);
+    CommonFunctions().checkPermission();
     getSubmittedCases(context);
     searchController.addListener(searchListener);
   }
@@ -41,6 +44,26 @@ class _SubmittedCaseState extends State<SubmittedCase> {
         child: Column(
           children: <Widget>[
             const SizedBox(height: 10),
+            // SizedBox(
+            //   height: 30,
+            //   width: double.infinity,
+            //   child: ElevatedButton(
+            //       onPressed: () {
+            //         Navigator.push(
+            //           context,
+            //           MaterialPageRoute(
+            //             builder: (context) => const ViewMapPage(),
+            //           ),
+            //         );
+            //       },
+            //       style: ElevatedButton.styleFrom(
+            //           elevation: 3, backgroundColor: Colors.teal[300]),
+            //       child: Text(
+            //         'View tracking List',
+            //         style: TextStyle(fontSize: 14),
+            //       )),
+            // ),
+            // const SizedBox(height: 10),
             SizedBox(
               height: 50,
               child: SearchWidget(

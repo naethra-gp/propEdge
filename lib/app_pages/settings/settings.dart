@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:prop_edge/app_storage/secure_storage.dart';
+import 'package:prop_edge/app_utils/alert_service.dart';
 
 import '../../app_theme/app_color.dart';
-import '../../app_utils/alert_service.dart';
+import '../../app_utils/alert_service2.dart';
 import '../../app_utils/app/app_bar.dart';
 
 class Settings extends StatefulWidget {

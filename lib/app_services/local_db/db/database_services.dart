@@ -1,6 +1,10 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
-// import 'package:sqflite_sqlcipher/sqflite.dart';
+// import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
+import '../../../app_config/app_constants.dart';
 import 'table_scripts.dart';
 
 class DatabaseServices {
@@ -20,9 +24,43 @@ class DatabaseServices {
     return await openDatabase(
       path,
       version: 1,
-      // password: "Naethra@1995",
+      password: "Naethra@1995",
       onCreate: _createDb,
     );
+  }
+
+  Future<void> get clearDatabase async {
+    final databasesPath = await getDatabasesPath();
+    final path =
+        join(databasesPath, 'PropEdge_db.db'); // Replace with your DB name
+
+    final dbFile = File(path);
+    if (await dbFile.exists()) {
+      final db = await openDatabase(path);
+      await truncateAllTables(db);
+      print('Database deleted at $path');
+    }
+  }
+
+  Future<void> truncateAllTables(Database db) async {
+    await db.transaction((txn) async {
+      await txn.execute('DELETE FROM ${Constants.dropdownList}');
+      await txn.execute('DELETE FROM ${Constants.getUserCaseSummary}');
+      await txn.execute('DELETE FROM ${Constants.reimbursement}');
+      await txn.execute('DELETE FROM ${Constants.propertyList}');
+      await txn.execute('DELETE FROM ${Constants.customerBankDetails}');
+      await txn.execute('DELETE FROM ${Constants.propertyDetails} ');
+      await txn.execute('DELETE FROM ${Constants.areaDetails}');
+      await txn.execute('DELETE FROM ${Constants.occupancyDetails}');
+      await txn.execute('DELETE FROM ${Constants.boundaryDetails}');
+      await txn.execute('DELETE FROM ${Constants.measurementSheet}');
+      await txn.execute('DELETE FROM ${Constants.stageCalculator}');
+      await txn.execute('DELETE FROM ${Constants.criticalComment}');
+      await txn.execute('DELETE FROM ${Constants.photograph}');
+      await txn.execute('DELETE FROM ${Constants.locationMap}');
+      await txn.execute('DELETE FROM ${Constants.propertyPlan}');
+      await txn.execute('DELETE FROM ${Constants.locationTracking}');
+    });
   }
 
   Future<void> _createDb(Database db, int version) async {

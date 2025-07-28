@@ -2,12 +2,17 @@ import 'dart:convert';
 
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:flutter/material.dart';
+import 'package:location/location.dart';
+import 'package:prop_edge/app_services/local_db/local_services/tracking_service.dart';
+import 'package:prop_edge/app_utils/alert_service.dart';
+import 'package:prop_edge/location_service.dart';
 import '../../../app_config/app_constants.dart';
 import '../../../app_services/local_db/local_services/local_services.dart';
 import '../../../app_theme/app_color.dart';
 import '../../../app_theme/custom_theme.dart';
-import '../../../app_utils/alert_service.dart';
+import '../../../app_utils/alert_service2.dart';
 import '../../../app_utils/app/app_button_widget.dart';
+// import '../../../app_utils/app/location_service.dart';
 import 'widgets/upload_form_dialog.dart';
 import 'widgets/uploads/list_image_widget.dart';
 import 'widgets/uploads/upload_outline_button_widget.dart';
@@ -48,9 +53,19 @@ class _UploadFormState extends State<UploadForm> {
   LocationMapService locationMapService = LocationMapService();
   PlanService planService = PlanService();
   PhotographService photographService = PhotographService();
+  LocationService locationService = LocationService();
+  TrackingServices trackingServices = TrackingServices();
 
   /// customer - Form
+  String instName = "";
+  String branchName = "";
+  String caseOrLoanType = "";
+  String cusName = "";
   String cusConNo = "";
+  String conPerName = "";
+  String conPerNumber = "";
+  String propAddress = "";
+  String siteInsDate = "";
 
   /// comments - Form
   String comm = "";
@@ -177,7 +192,7 @@ class _UploadFormState extends State<UploadForm> {
     _alertService.showLoading();
     List cs = await customerServices.readById(widget.propId);
     List pl = await propertyDetailsServices.readById(widget.propId);
-    print('pl $pl');
+    print('cs $cs');
     List commList = await commentsServices.read(widget.propId);
     List occList = await occupancyServices.read(widget.propId);
     List areaList = await areaServices.read(widget.propId);
@@ -188,6 +203,18 @@ class _UploadFormState extends State<UploadForm> {
     cusConNo = cs[0]['CustomerContactNumber'].toString();
     comm = commList[0]['Comment'].toString();
     missingFeilds.clear();
+
+    for (var item in cs) {
+      instName = item['BankName'].toString();
+      branchName = item['BranchName'].toString();
+      caseOrLoanType = item['LoanType'].toString();
+      cusName = item['CustomerName'].toString();
+      cusConNo = item['CustomerContactNumber'].toString();
+      conPerName = item['ContactPersonName'].toString();
+      conPerNumber = item['ContactPersonNumber'].toString();
+      propAddress = item['PropertyAddress'].toString();
+      siteInsDate = item['SiteInspectionDate'].toString();
+    }
 
     for (var item in pl) {
       region = item['Region'].toString();
@@ -270,6 +297,17 @@ class _UploadFormState extends State<UploadForm> {
 
   Future<void> _finalSubmit() async {
     AlertService alertService = AlertService();
+
+    bool serviceEnabled = await locationService.location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await locationService.location.requestService();
+      if (!serviceEnabled) {
+        alertService
+            .errorToast('Please enable your location before final submission');
+        return;
+      }
+    }
+
     bool? confirm = await alertService.confirmAlert(
       context,
       'Final Confirmation',
@@ -488,7 +526,24 @@ class _UploadFormState extends State<UploadForm> {
     //   }, () async {
 
     PropertyListService service = PropertyListService();
-    List request = [Constants.status[2], "N", widget.propId.toString()];
+
+    LocationData? currentLocation = await locationService.getCurrentLocation();
+    // String? plLat;
+    // String? plLong;
+    // if (currentLocation != null) {x
+    //   plLat = currentLocation.latitude.toString();
+    //   plLong = currentLocation.longitude.toString();
+    // }
+    // await locationService.saveLocation(currentLocation, 'PS');
+    await trackingServices.insertLocation(currentLocation!, 'PS');
+
+    List request = [
+      Constants.status[2],
+      "N",
+      // plLat,
+      // plLong,
+      widget.propId.toString(),
+    ];
     var result = await service.updateLocalStatus(request);
     if (result == 1) {
       _alertService.successToast("Form status updated");
@@ -504,6 +559,19 @@ class _UploadFormState extends State<UploadForm> {
   bool validateForm() {
     // missingFeilds.clear();
     missingTabs.clear();
+
+    //Customer form
+    if (instName.isEmpty ||
+        branchName.isEmpty ||
+        caseOrLoanType.isEmpty ||
+        cusName.isEmpty ||
+        cusConNo.isEmpty ||
+        conPerName.isEmpty ||
+        conPerNumber.isEmpty ||
+        propAddress.isEmpty ||
+        siteInsDate.isEmpty) {
+      missingTabs.add("Customer Tab");
+    }
 
     // Comments Form Validations
     if (comm.isEmpty) missingTabs.add("Comment Tab");
@@ -585,12 +653,11 @@ class _UploadFormState extends State<UploadForm> {
     //   missingTabs.add("Property Tab c5");
     // }
 
-    if ((noOfLifts.isEmpty || noOfLifts == "0") && propertyType != "958") {
+    if ((noOfLifts.isEmpty) && propertyType != "958") {
       missingTabs.add("Property Tab");
     }
 
-    if ((noOfstairCases.isEmpty || noOfstairCases == "0") &&
-        propertyType != "958") {
+    if ((noOfstairCases.isEmpty) && propertyType != "958") {
       missingTabs.add("Property Tab");
     }
 

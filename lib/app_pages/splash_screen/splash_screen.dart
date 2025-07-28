@@ -1,5 +1,8 @@
 import 'package:easy_splash_screen/easy_splash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:prop_edge/app_utils/alert_service.dart';
+import 'package:prop_edge/app_utils/app/common_functions.dart';
 
 import '../../app_config/app_constants.dart';
 import '../../app_config/app_strings.dart';
@@ -18,6 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
   // Duration for which the splash screen is displayed
   static const _splashDuration = Duration(seconds: 3);
   final _secureStorage = BoxStorage();
+  AlertService alertService = AlertService();
 
   @override
   void initState() {
@@ -37,7 +41,13 @@ class _SplashScreenState extends State<SplashScreen> {
 
     // Check if user has granted necessary permissions
     final permission = _secureStorage.get("permission");
-    if (permission != "true") {
+    final permissionKey = _secureStorage.containsKey("permission");
+    final firstLogin = _secureStorage.get("fmtLogin");
+    final firstLoginKey = _secureStorage.containsKey("fmtLogin");
+
+    debugPrint('permission: $permission');
+    debugPrint('permissionKey: $permissionKey');
+    if (permission != "true" || !firstLoginKey) {
       Navigator.pushReplacementNamed(context, 'permission');
       return;
     }
@@ -45,8 +55,35 @@ class _SplashScreenState extends State<SplashScreen> {
     // Check user authentication state
     final user = _secureStorage.getUserDetails();
     if (user != null && user['IsSuccess'] == true) {
-      // User is authenticated, navigate to main page
-      Navigator.pushReplacementNamed(context, 'mainPage', arguments: 2);
+      // Check if it's first login of the day
+      String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      String lastLoginDate = await _secureStorage.get('last_login_date') ?? '';
+      debugPrint('-------> last Login date (splash) $lastLoginDate');
+
+      bool isFirstLoginOfDay = lastLoginDate != today;
+
+      if (isFirstLoginOfDay) {
+        // If it's a new day, redirect to login page
+        bool isConfirm = await AlertService().confirmAlertOK(context, 'Alert',
+            'Please log in again. Your local mobile data will now be synced to the central server. Please wait...');
+        // if (isConfirm) {
+        //   AlertService().showLoading();
+        //   await androidLogoutCallback();
+        //   AlertService().hideLoading();
+        //   await _secureStorage.save('autoTriggered', true);
+        //   Navigator.pushReplacementNamed(context, 'login');
+        // }
+        if (isConfirm) {
+          AlertService().showLoading();
+          // await AlertService().androidLogoutCallback(context);
+          await CommonFunctions().androidLogoutCallback(context);
+          AlertService().hideLoading();
+        }
+      } else {
+        // User is authenticated and has logged in today, navigate to main page
+        Navigator.pushReplacementNamed(context, 'mainPage', arguments: 2);
+      }
+      // LocationService().startServiceChecker();
     } else {
       // User is not authenticated, navigate to login
       Navigator.pushReplacementNamed(context, 'login');

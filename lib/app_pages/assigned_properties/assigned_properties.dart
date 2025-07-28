@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:prop_edge/app_utils/alert_service.dart';
 import '../../app_services/local_db/local_services/property_list_services.dart';
-import '../../app_utils/alert_service.dart';
+import '../../app_utils/app/common_functions.dart';
 import '../../app_utils/app/search_widget.dart';
 import '../../app_utils/app_widget/no_data_found.dart';
 import 'widget/property_expansion_widget.dart';
@@ -22,6 +23,8 @@ class _AssignedPropertiesState extends State<AssignedProperties> {
   @override
   void initState() {
     debugPrint("---> Assigned Properties Page <---");
+    CommonFunctions().loadData(context);
+    CommonFunctions().checkPermission();
     getList();
     searchController.addListener(searchListener);
     super.initState();

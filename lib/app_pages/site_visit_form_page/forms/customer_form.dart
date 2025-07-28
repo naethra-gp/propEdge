@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prop_edge/app_utils/alert_service2.dart';
 import 'package:prop_edge/app_utils/alert_service.dart';
 
 import '../../../app_config/app_constants.dart';
@@ -216,7 +217,14 @@ class _CustomerFormState extends State<CustomerForm> {
     if (FormManager().customerForm.currentState!.validate()) {
       FormManager().customerForm.currentState!.save();
       PropertyListService service = PropertyListService();
-      List request = [Constants.status[1], "N", widget.propId.toString()];
+      List request = [
+        Constants.status[1],
+        "N",
+        // '0',
+        // '0',
+        widget.propId.toString(),
+      ];
+      print('req $request');
       var result = await service.updateLocalStatus(request);
       if (result == 1) {
         alertService.successToast("Property status updated successfully.");

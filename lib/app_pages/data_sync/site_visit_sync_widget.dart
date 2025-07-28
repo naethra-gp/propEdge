@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:prop_edge/app_utils/alert_service.dart';
+import 'package:prop_edge/app_utils/app/common_functions.dart';
+import 'package:prop_edge/location_service.dart';
 
 import '../../app_config/app_constants.dart';
 import '../../app_services/local_db/local_services/live_to_local_insert.dart';
@@ -8,7 +11,6 @@ import '../../app_services/local_db/local_services/property_list_services.dart';
 import '../../app_services/local_db/local_services/user_case_summary_service.dart';
 import '../../app_services/site_visit_service.dart';
 import '../../app_storage/secure_storage.dart';
-import '../../app_utils/alert_service.dart';
 import 'widget/ds_list_widget.dart';
 
 class SiteVisitSyncWidget extends StatefulWidget {
@@ -27,6 +29,7 @@ class _SiteVisitSyncWidgetState extends State<SiteVisitSyncWidget> {
   final UserCaseSummaryService caseSummaryService = UserCaseSummaryService();
   final PropertyListService plService = PropertyListService();
   final LiveToLocalInsert ltlService = LiveToLocalInsert();
+  LocationService locationService = LocationService();
 
   @override
   Widget build(BuildContext context) {
@@ -37,15 +40,25 @@ class _SiteVisitSyncWidgetState extends State<SiteVisitSyncWidget> {
       onPressed: () async {
         Fluttertoast.cancel();
         if (!widget.hasInternet) {
-          await alertService.errorToast(Constants.checkInternetMsg);
+          alertService.errorToast(Constants.checkInternetMsg);
         } else {
-          final confirm = await alertService.confirmAlert(
+          // bool serviceEnabled = await locationService.location.serviceEnabled();
+          // if (!serviceEnabled) {
+          //   serviceEnabled = await locationService.location.requestService();
+          //   if (!serviceEnabled) {
+          //     alertService.errorToast('Location services are disabled.');
+          //     return;
+          //   }
+          // }
+          bool? confirm = await alertService.confirmAlert(
             context,
             null,
-            'Do you want download?\n1. User Case Summary\n2. Site Visit Data',
+            'Do you want download?'
+            '\n1. User Case Summary'
+            '\n2. Site Visit Data',
           );
-          if (confirm == true) {
-            await getUserSummary();
+          if (confirm!) {
+            getUserSummary();
           }
         }
       },
@@ -55,8 +68,12 @@ class _SiteVisitSyncWidgetState extends State<SiteVisitSyncWidget> {
   Future<void> getUserSummary() async {
     // Added Future<void> for better type safety
     final token = secureStorage.getLoginToken();
-    await alertService.showLoading("Fetching User Case Summary...");
-
+    alertService.showLoading("Fetching User Case Summary...");
+    // LocationData? currentLocation = await locationService.getCurrentLocation();
+    // if (currentLocation != null) {
+    //   secureStorage.save("SV_Latitude", currentLocation.latitude.toString());
+    //   secureStorage.save("SV_Longitude", currentLocation.longitude.toString());
+    // }
     final params = {
       "CustomerName": "",
       "loginToken": {"Token": token}
@@ -75,7 +92,8 @@ class _SiteVisitSyncWidgetState extends State<SiteVisitSyncWidget> {
 
   Future<void> getProperties() async {
     final token = secureStorage.getLoginToken();
-    alertService.showLoading("Getting Property Data...");
+    alertService.showLoading(
+        "Please wait...\nUser Property Data Sync is under process.");
 
     final params = {
       "CustomerName": "",
@@ -131,15 +149,17 @@ class _SiteVisitSyncWidgetState extends State<SiteVisitSyncWidget> {
           newProperties[i]['PropId'],
           () {
             if (i == newProperties.length - 1) {
-              alertService.successToast(Constants.apiSuccessMessage);
+              alertService
+                  .successToast('User property data synced successfully.');
               alertService.hideLoading();
             }
           },
         );
       }
-    } catch (e) {
-      // alertService.errorToast("Try again!");
+    } catch (e, stackTrace) {
       alertService.hideLoading();
+      CommonFunctions()
+          .appLog(e, stackTrace, reason: "GET USER SUMMARY API", fatal: true);
     }
   }
 

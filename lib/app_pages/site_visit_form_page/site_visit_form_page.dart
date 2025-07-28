@@ -64,7 +64,7 @@ class _SiteVisitFormPageState extends State<SiteVisitFormPage> {
             null,
             "Do you want to exit from this form?",
           );
-          if (confirm == true && context.mounted) {
+          if (confirm! && context.mounted) {
             Navigator.pushReplacementNamed(context, 'mainPage', arguments: 2);
           }
         },

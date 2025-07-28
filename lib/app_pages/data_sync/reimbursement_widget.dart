@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:prop_edge/app_utils/alert_service.dart';
+import 'package:prop_edge/app_utils/app/common_functions.dart';
 
 import '../../app_config/app_constants.dart';
 import '../../app_services/local_db/local_services/local_reimbursement_services.dart';
@@ -38,7 +39,8 @@ class _ReimbursementWidgetState extends State<ReimbursementWidget> {
         } else {
           List list = await localService.readBasedOnSync();
           if (list.isEmpty) {
-            alertService.toast("No data available to sync. All data is already synced.");
+            alertService.toast(
+                "No data available to sync. All data is already synced.");
           } else {
             String msg = "Do you want to upload ${list.length} record?";
             if (!context.mounted) return;
@@ -78,41 +80,46 @@ class _ReimbursementWidgetState extends State<ReimbursementWidget> {
   }
 
   saveReimbursement(list, baseString, showMessage) {
-    alertService.showLoading();
-    var token = secureStorage.getLoginToken();
-    Map<String, dynamic> request = {
-      "reimbursements": [
-        {
-          "primaryId": list['primaryId'].toString(),
-          "Id": list['Id'],
-          "ExpenseDate": list['ExpenseDate'],
-          "NatureOfExpense": list['NatureOfExpense'],
-          "NoOfDays": list['NoOfDays'],
-          "TravelAllowance": list['TravelAllowance'],
-          "TotalAmount": list['TotalAmount'],
-          "ExpenseComment": list['ExpenseComment'],
-          "BillPath": list['BillPath'],
-          "BillName": list['BillName'].toString(),
-          "BillBase64String": baseString,
-          "IsActive": list['IsActive'],
-          "SyncStatus": "Y"
+    try {
+      alertService.showLoading();
+      var token = secureStorage.getLoginToken();
+      Map<String, dynamic> request = {
+        "reimbursements": [
+          {
+            "primaryId": list['primaryId'].toString(),
+            "Id": list['Id'],
+            "ExpenseDate": list['ExpenseDate'],
+            "NatureOfExpense": list['NatureOfExpense'],
+            "NoOfDays": list['NoOfDays'],
+            "TravelAllowance": list['TravelAllowance'],
+            "TotalAmount": list['TotalAmount'],
+            "ExpenseComment": list['ExpenseComment'],
+            "BillPath": list['BillPath'],
+            "BillName": list['BillName'].toString(),
+            "BillBase64String": baseString,
+            "IsActive": list['IsActive'],
+            "SyncStatus": "Y"
+          }
+        ],
+        "loginToken": {"Token": token.toString()}
+      };
+      liveService.saveReimbursement(request).then((result) async {
+        alertService.hideLoading();
+        if (result['Status']) {
+          deleteLocalSql(list['primaryId'].toString());
+          if (showMessage) {
+            alertService.successToast(Constants.apiSuccessMessage);
+          }
+        } else {
+          if (showMessage) {
+            alertService.errorToast(Constants.apiErrorMessage);
+          }
         }
-      ],
-      "loginToken": {"Token": token.toString()}
-    };
-    liveService.saveReimbursement(request).then((result) async {
-      alertService.hideLoading();
-      if (result['Status']) {
-        deleteLocalSql(list['primaryId'].toString());
-        if (showMessage) {
-          alertService.successToast(Constants.apiSuccessMessage);
-        }
-      } else {
-        if (showMessage) {
-          alertService.errorToast(Constants.apiErrorMessage);
-        }
-      }
-    });
+      });
+    } catch (e, stackTrace) {
+      CommonFunctions()
+          .appLog(e, stackTrace, fatal: true, reason: "SAVE REIMBURSEMENT");
+    }
   }
 
   deleteLocalSql(String id) async {

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:prop_edge/app_utils/app/log_viewer.dart';
+import 'package:prop_edge/app_utils/app/track_data.dart';
 
 import '../app_pages/index.dart';
+import '../app_utils/app/db_track_data.dart';
 
 class AppRoute {
   static Route<dynamic> allRoutes(RouteSettings settings) {
@@ -15,9 +18,9 @@ class AppRoute {
         case "mainPage":
           int index = settings.arguments as int;
           return MainPage(index: index);
-          case "site_visit_form":
-            String id = settings.arguments as String;
-            return SiteVisitFormPage(propId: id);
+        case "site_visit_form":
+          String id = settings.arguments as String;
+          return SiteVisitFormPage(propId: id);
         case "addReimbursement":
           Map args = settings.arguments as Map;
           return AddReimbursement(args: args);
@@ -29,11 +32,15 @@ class AppRoute {
           return LocalViewDetails(list: list);
         case "settings":
           return const Settings();
+        case "track_data":
+          return LogViewerScreen();
+        case "db_track_data":
+          return const DBTrackData();
         case "view_reimbursement":
           return const ViewReimbursement();
-          case "view_site_visit_form_data":
-            String id = settings.arguments as String;
-            return ViewSiteVisitFormData(propId: id);
+        case "view_site_visit_form_data":
+          String id = settings.arguments as String;
+          return ViewSiteVisitFormData(propId: id);
       }
       return const LoginPage();
     });

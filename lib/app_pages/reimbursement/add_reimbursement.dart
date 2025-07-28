@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:prop_edge/app_services/local_db/local_services/dropdown_services.dart';
+import 'package:prop_edge/app_utils/alert_service.dart';
 import 'package:prop_edge/app_utils/form/custom_single_dropdown.dart';
 
 import '../../app_config/app_constants.dart';
@@ -17,7 +18,7 @@ import '../../app_services/local_db/local_services/local_reimbursement_services.
 import '../../app_storage/local_storage.dart';
 import '../../app_theme/app_color.dart';
 import '../../app_theme/custom_theme.dart';
-import '../../app_utils/alert_service.dart';
+import '../../app_utils/alert_service2.dart';
 import '../../app_utils/app/app_bar.dart';
 import '../../app_utils/app/app_button_widget.dart';
 import '../../app_utils/form/disabled_focus.dart';
@@ -57,6 +58,7 @@ class _AddReimbursementState extends State<AddReimbursement> {
   @override
   void initState() {
     // TODO: implement initState
+
     title = widget.args['primaryId'] == null ? "New" : "Update";
     buttonLabel = widget.args['primaryId'] == null ? "Save" : "Update";
     if (widget.args['primaryId'] != null) {
@@ -233,7 +235,7 @@ class _AddReimbursementState extends State<AddReimbursement> {
                     children: <Widget>[
                       Flexible(
                         child: CustomTextFormField(
-                          title: "Travel Allowance",
+                          title: "Allowance",
                           controller: travelCtrl,
                           textInputAction: TextInputAction.done,
                           keyboardType: const TextInputType.numberWithOptions(
@@ -516,7 +518,7 @@ class _AddReimbursementState extends State<AddReimbursement> {
       compressQuality: 100,
       uiSettings: <PlatformUiSettings>[
         AndroidUiSettings(
-          toolbarTitle: 'Crop your Photo',
+          toolbarTitle: 'Crop your image',
           statusBarColor: AppColors.primary,
           activeControlsWidgetColor: AppColors.primary,
           toolbarColor: AppColors.primary,

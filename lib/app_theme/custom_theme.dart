@@ -9,7 +9,7 @@ class CustomTheme {
   static TextStyle formLabelStyle = const TextStyle(
     color: Colors.black,
     fontWeight: FontWeight.w600,
-    fontSize: 12,
+    fontSize: 11,
   );
   static TextStyle errorStyle = TextStyle(
     color: Colors.redAccent,

@@ -1,14 +1,15 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:prop_edge/app_utils/alert_service.dart';
 import 'package:retry/retry.dart';
 
 import '../app_config/app_constants.dart';
 import '../app_storage/secure_storage.dart';
-import '../app_utils/alert_service.dart';
+import '../app_utils/alert_service2.dart';
 import '../app_utils/app/app_button_widget.dart';
 import '../app_utils/app_widget/global_alert_widget.dart';
 
@@ -28,17 +29,12 @@ class Connection {
 
   Future<Map<String, dynamic>?> post(
       String url, Map<String, dynamic> body) async {
-    debugPrint("API Calling: $url");
-
-    /// CHECK INTERNET
     if (!await isConnectedToInternet()) {
       _alertService.hideLoading();
       _alertService.errorToast(Constants.internetErrorMessage);
       return null;
     }
-    // FIREBASE PERFORMANCE
-    final trace = FirebasePerformance.instance.newTrace("post");
-    await trace.start();
+
     try {
       final headers = {
         ..._defaultHeaders,
@@ -47,9 +43,9 @@ class Connection {
       };
 
       final retryOptions = RetryOptions(
-        maxAttempts: 2,
-        delayFactor: const Duration(seconds: 1),
-        maxDelay: const Duration(seconds: 5),
+        maxAttempts: 3,
+        delayFactor: const Duration(seconds: 3),
+        maxDelay: const Duration(seconds: 15),
       );
 
       final response = await retryOptions.retry(
@@ -66,13 +62,19 @@ class Connection {
             encoding: Encoding.getByName('utf-8'),
           );
 
-          print(res.statusCode);
-          print(jsonEncode(json.decode(res.body)));
-
-          /// STATUS BASED ERROR HANDLING
+          if (res.statusCode == 401) {
+            final context = AlertService.navigatorKey.currentContext;
+            if (context != null && context.mounted) {
+              await _secureStorage.deleteUserDetails();
+              Navigator.pushNamedAndRemoveUntil(
+                  context, 'login', (route) => false);
+            }
+            return res;
+          }
           if (res.statusCode == 200) {
             return res;
           }
+
           throw HttpException('API call failed with status: ${res.statusCode}');
         },
         retryIf: (e) => e is http.ClientException || e is HttpException,
@@ -96,12 +98,14 @@ class Connection {
       return null;
     } catch (e, stackTrace) {
       _alertService.hideLoading();
-      _alertService.errorToast(e.toString());
-      FirebaseCrashlytics.instance.recordError(e, stackTrace);
+      if (e is SocketException) {
+        _alertService.errorToast(
+            'Please check your network connection. Poor network connection');
+      } else {
+        FirebaseCrashlytics.instance.recordError(e, stackTrace, fatal: true);
+        _alertService.errorToast(e.toString());
+      }
       return null;
-    } finally {
-      debugPrint("----- API CALL COMPLETED ------");
-      await trace.stop();
     }
   }
 

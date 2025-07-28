@@ -3,6 +3,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:location/location.dart';
+import 'package:prop_edge/location_service.dart';
 
 /// A service class that handles all alert-related operations including:
 /// - Loading indicators
@@ -36,11 +38,14 @@ class AlertService {
   Future<void> showLoading([String? title]) async {
     EasyLoading.instance
       ..loadingStyle = _loadingConfig['loadingStyle'] as EasyLoadingStyle
-      ..indicatorType = _loadingConfig['indicatorType'] as EasyLoadingIndicatorType
-      ..toastPosition = _loadingConfig['toastPosition'] as EasyLoadingToastPosition
-      ..animationStyle = _loadingConfig['animationStyle'] as EasyLoadingAnimationStyle
+      ..indicatorType =
+          _loadingConfig['indicatorType'] as EasyLoadingIndicatorType
+      ..toastPosition =
+          _loadingConfig['toastPosition'] as EasyLoadingToastPosition
+      ..animationStyle =
+          _loadingConfig['animationStyle'] as EasyLoadingAnimationStyle
       ..textStyle = const TextStyle(fontWeight: FontWeight.w500);
-    
+
     await EasyLoading.show(
       status: title ?? 'Please wait...',
       maskType: EasyLoadingMaskType.black,
@@ -125,7 +130,8 @@ class AlertService {
   }
 
   /// Shows a confirmation dialog
-  Future<bool?> confirmAlert(BuildContext context, String? title, String content) {
+  Future<bool?> confirmAlert(
+      BuildContext context, String? title, String content) {
     final theme = Theme.of(context);
     return showDialog<bool>(
       context: context,
@@ -191,5 +197,117 @@ class AlertService {
       ),
     );
   }
-}
 
+  confirmAlertOK(BuildContext context, String? title, String content) {
+    ThemeData theme = Theme.of(context);
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return PopScope(
+          canPop: false, // Disables the back button
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+            child: AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
+              title: Text(
+                title ?? "Alert",
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+              content: Text(
+                content.toString(),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: Text(
+                    "OK",
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      decoration: TextDecoration.none,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> showLocationEnableDialog() async {
+    final Location location = Location();
+
+    await showDialog(
+      context: navigatorKey.currentContext!,
+      barrierDismissible: false, // Cannot tap outside to dismiss
+      builder: (BuildContext context) {
+        ThemeData theme = Theme.of(context);
+
+        return PopScope(
+          // onWillPop: () async => false, // Disable back button
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) => false,
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+            child: AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
+              title: Text(
+                "Location Required",
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              content: Text(
+                "Please turn on the Location to continue the Process.",
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    bool enabled = await location.requestService();
+                    if (enabled) {
+                      Navigator.of(context).pop(); // Close dialog
+                      // Add a small delay to ensure location service is fully enabled
+                      // await Future.delayed(const Duration(milliseconds: 500));
+                      // Retry getting location
+                      LocationService().getCurrentLocation();
+                    }
+                  },
+                  child: Text(
+                    "Turn On",
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}

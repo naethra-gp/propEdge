@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "641150811736",
-    "project_id": "naethra-prop-edge",
-    "storage_bucket": "naethra-prop-edge.firebasestorage.app"
+    "project_number": "638307796870",
+    "project_id": "propedge-1a187",
+    "storage_bucket": "propedge-1a187.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:641150811736:android:48e2ae950b458e3ff9942d",
+        "mobilesdk_app_id": "1:638307796870:android:d8329e457e024165a88e07",
         "android_client_info": {
           "package_name": "com.propedge.app"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCpE6CMV_t4cm3RL5T3Qnn8AD5fgX_-LFg"
+          "current_key": "AIzaSyC5urdcFFsbDkAqs02yyqLR5lib53JNFq0"
         }
       ],
       "services": {

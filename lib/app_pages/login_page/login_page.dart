@@ -4,18 +4,23 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:prop_edge/app_utils/alert_service.dart';
+import 'package:prop_edge/app_utils/app/common_functions.dart';
 import 'package:unique_identifier/unique_identifier.dart';
 
 import '../../app_config/app_constants.dart';
 import '../../app_model/login_model.dart';
+import '../../app_services/local_db/db/database_services.dart';
+import '../../app_services/local_db/local_services/tracking_service.dart';
 import '../../app_services/user_service.dart';
 import '../../app_storage/secure_storage.dart';
-import '../../app_utils/alert_service.dart';
 import '../../app_utils/app/app_button_widget.dart';
-import '../../app_utils/app/location_service.dart';
+// import '../../app_utils/app/location_service.dart';
+import '../../location_service.dart';
 import 'widgets/index.dart';
 
 class LoginPage extends StatefulWidget {
@@ -35,6 +40,10 @@ class _LoginPageState extends State<LoginPage> {
   UserServices userServices = UserServices();
   bool hidePassword = true;
   SizedBox defaultHeight = const SizedBox(height: 20);
+  TrackingServices tracking = TrackingServices();
+  // LocationService locationService = LocationService();
+  LocationService locationService = LocationService();
+  // LocService locService = LocService();
 
   @override
   void initState() {
@@ -152,6 +161,8 @@ class _LoginPageState extends State<LoginPage> {
       await getLocation();
       alertService.hideLoading();
       formSubmit();
+    } else {
+      debugPrint('-----> else check condition..');
     }
   }
 
@@ -166,6 +177,7 @@ class _LoginPageState extends State<LoginPage> {
       loginRequestModel.platformVersion = version;
     }
   }
+
   getLocation() async {
     try {
       LocationData? position = await LocationService().getCurrentLocation();
@@ -174,25 +186,64 @@ class _LoginPageState extends State<LoginPage> {
       loginRequestModel.longitude = position?.longitude?.toString() ?? "";
     } catch (e) {
       debugPrint("Error getting location: $e");
-      alertService.errorToast('Error getting location. Please check your location settings.');
+      alertService.successToast(
+          'Location service has been stopped\nPlease re-enter your login details again');
+      // Navigator.pushReplacementNamed(context, 'login');
+      alertService.hideLoading();
+      // alertService.errorToast(
+      //     'Error getting location. Please check your location settings.');
     }
   }
 
   formSubmit() {
+    alertService.showLoading("Verifying Login Details...");
     // TODO: CHECK BEFORE LIVE MODE ---
-    loginRequestModel.userName = "gnanaprakasam@naethra.com";
-    loginRequestModel.password = "User@123";
-    loginRequestModel.iMEINumber = "8ef32d2c35806173";
+    // loginRequestModel.userName = "liveuser@propequity.in";
+    // loginRequestModel.password = "Live@1234";
+    // loginRequestModel.iMEINumber = "8ef32d2c35806173";
+
+    // loginRequestModel.userName = "sriram.g@naethra.com";
+    // loginRequestModel.password = "S@123456";
+    // loginRequestModel.iMEINumber = "3bdd8b48a28b16a7";
+
+    // loginRequestModel.userName = "eswara2pandiyan4@gmail.com";
+    // loginRequestModel.password = "E@123456";
+    // loginRequestModel.iMEINumber = "34bf809de72ff461";
+
+    // loginRequestModel.userName = "eswara2pandiyan4@gmail.com";
+    // loginRequestModel.password = "Ntpl@123";
+    // loginRequestModel.iMEINumber = "0cfb91b36ff4c02f";
+
+    // loginRequestModel.userName = "farzanashabo@naethra.com";
+    // loginRequestModel.password = "Ntpl@123";
+    // loginRequestModel.iMEINumber = "f754ed13242a38b9";
+
+    // loginRequestModel.userName = "manjeet@propequity.in";
+    // loginRequestModel.password = "123456";
+    // loginRequestModel.iMEINumber = "0677e72e3362b529";
+
+    // loginRequestModel.userName = "prakash.m@naethra.com";
+    // loginRequestModel.password = "Ntpl@123";
+    // loginRequestModel.iMEINumber = "c7608ed043b32c65";
+
+    // loginRequestModel.userName = "ashutosh.thakur@propequity.in";
+    // loginRequestModel.password = "A@12345";
+    // loginRequestModel.iMEINumber = "bb9b47d7c3371160";
 
     /// LIVE ---
     if (loginRequestModel.latitude == null ||
         loginRequestModel.longitude == null ||
         loginRequestModel.latitude!.isEmpty ||
-        loginRequestModel.longitude!.isEmpty) {
-      alertService.errorToast('Location Error. Unable to Login');
+        loginRequestModel.longitude!.isEmpty ||
+        double.parse(loginRequestModel.latitude!) < -90 ||
+        double.parse(loginRequestModel.latitude!) > 90 ||
+        double.parse(loginRequestModel.longitude!) < -180 ||
+        double.parse(loginRequestModel.longitude!) > 180) {
+      // alertService.errorToast('Location Error. Unable to Login');
+      alertService.hideLoading();
       return;
     }
-    alertService.showLoading("Verifying Login Details...");
+
     var params = {
       "userDetail": {
         "UserName": loginRequestModel.userName,
@@ -212,7 +263,7 @@ class _LoginPageState extends State<LoginPage> {
     debugPrint("Login Params: ${jsonEncode(params)}");
     userServices.loginService(context, params).then((res) async {
       alertService.hideLoading();
-      
+
       if (res == null) {
         alertService.errorToast('Server error occurred. Please try again.');
         return;
@@ -221,25 +272,79 @@ class _LoginPageState extends State<LoginPage> {
       try {
         final loginStatus = res['LoginStatus'];
         if (loginStatus == null) {
-          await alertService.errorToast('Invalid response from server');
+          alertService.errorToast('Invalid response from server');
           return;
         }
 
-        String msg = loginStatus['Message']?.toString() ?? 'Unknown error occurred';
-        
+        String msg =
+            loginStatus['Message']?.toString() ?? 'Unknown error occurred';
+
         if (loginStatus['IsSuccess'] == true) {
-          await secureStorage.saveUserDetails(loginStatus);
+          secureStorage.saveUserDetails(loginStatus);
+          secureStorage.save('logStatus', false);
+          List<String> startTripList =
+              await secureStorage.get('start_trip_date') ?? [];
+
+          // await secureStorage.save(
+          //     'login_latitude', loginRequestModel.latitude);
+          // await secureStorage.save(
+          //     'login_longitude', loginRequestModel.longitude);
+
+          String timestamp =
+              DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
+
+          // // Check if it's first login of the day
+          String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+          String lastLoginDate =
+              await secureStorage.get('last_login_date') ?? '';
+          debugPrint('-------> last Login date (login) $lastLoginDate');
+
+          bool isFirstLoginOfDay = lastLoginDate != today;
+
+          bool firstLogin = secureStorage.get('fmtLogin') ?? false;
+          // bool autoTriggerd = secureStorage.get('autoTriggered') ?? false;
+          debugPrint('---->before firstLogin ${firstLogin}');
+          if (firstLogin) {
+            debugPrint('---->after firstLogin ${firstLogin}');
+            await secureStorage.save("fmtLogin", false);
+            bool? isConfirm = await alertService.confirmAlert(context, 'Alert!',
+                'App is now start tracking your current location for our future reference.');
+            if (!isConfirm!) {
+              Navigator.pushReplacementNamed(context, 'login');
+              return;
+            }
+            DatabaseServices.instance.clearDatabase;
+          }
+
+          if (isFirstLoginOfDay) {
+            await locationService.uploadLocationTrackingAuto();
+          }
+          await secureStorage.save('last_login_date', today);
+          await secureStorage.save('autoTriggered', false);
+
+          alertService.showLoading();
+
+          await locationService.startTrackingFromCurrent();
+
+          startTripList.add(timestamp);
+          await secureStorage.save('start_trip_date', startTripList);
+          alertService.hideLoading();
           Navigator.pushNamedAndRemoveUntil(
               context, 'mainPage', arguments: 2, (_) => false);
         } else {
-          await alertService.errorToast(msg);
+          alertService.errorToast(msg);
         }
-      } catch (e) {
+      } catch (e, stackTrace) {
+        alertService.hideLoading();
+        CommonFunctions()
+            .appLog(e, stackTrace, fatal: true, reason: "LOGIN SCREEN");
         debugPrint("Error processing login response: $e");
-        await alertService.errorToast('Error processing server response');
+        alertService.errorToast('Error processing server response');
       }
-    }).catchError((error) {
+    }).catchError((error, stack) {
       alertService.hideLoading();
+      CommonFunctions()
+          .appLog(error, stack, fatal: true, reason: "LOGIN SCREEN");
       debugPrint("Login error: $error");
       alertService.errorToast('Connection error. Please try again.');
     });

@@ -15,6 +15,10 @@ class BoxStorage {
     return box.get(key);
   }
 
+  containsKey(key) {
+    return box.containsKey(key);
+  }
+
   //Save User Details
   saveUserDetails(user) {
     box.put('user', user);
@@ -28,6 +32,14 @@ class BoxStorage {
   //Get User Details
   deleteUserDetails() {
     return box.delete('user');
+  }
+
+  deleteStartTripStatus() {
+    return box.delete('start_trip_date');
+  }
+
+  deleteEndTripStatus() {
+    return box.delete('end_trip_date');
   }
 
   //Get User Name

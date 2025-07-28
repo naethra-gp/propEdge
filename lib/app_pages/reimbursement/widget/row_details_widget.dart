@@ -53,9 +53,6 @@ class RowDetailsWidget extends StatelessWidget {
     if (value == '' || value.toLowerCase() == 'null') {
       return '-';
     }
-    if (value == '0') {
-      return '-';
-    }
     return value;
   }
 }

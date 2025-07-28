@@ -2,9 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:prop_edge/app_utils/alert_service.dart';
+import 'package:prop_edge/app_utils/app/common_functions.dart';
 import '../../app_services/local_db/local_services/dropdown_services.dart';
 import '../../app_storage/secure_storage.dart';
-import '../../app_utils/alert_service.dart';
 import 'dropdown_sync.dart';
 import 'reimbursement_widget.dart';
 import 'site_visit_sync_widget.dart';
@@ -27,7 +28,9 @@ class _DataSyncState extends State<DataSync> {
   @override
   void initState() {
     debugPrint("---> Data Sync Page <---");
+    CommonFunctions().loadData(context);
     checkInternet();
+    CommonFunctions().checkPermission();
     super.initState();
   }
 

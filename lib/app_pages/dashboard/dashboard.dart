@@ -1,20 +1,20 @@
-import 'package:disable_battery_optimization/disable_battery_optimization.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'dart:async';
-import 'package:location/location.dart';
+
+import 'package:disable_battery_optimizations_latest/disable_battery_optimizations_latest.dart';
+// import 'package:disable_battery_optimization/disable_battery_optimization.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:prop_edge/app_utils/alert_service.dart';
 import 'package:prop_edge/app_utils/app_widget/no_data_found.dart';
-import 'dart:io';
+import 'package:prop_edge/location_service.dart';
 import '../../app_config/app_constants.dart';
 import '../../app_services/local_db/local_services/property_list_services.dart';
 import '../../app_services/local_db/local_services/user_case_summary_service.dart';
 import '../../app_storage/secure_storage.dart';
 import '../../app_theme/app_color.dart';
 import '../../app_theme/custom_theme.dart';
-import '../../app_utils/alert_service.dart';
 import '../../app_utils/app/common_functions.dart';
-import '../../app_utils/app/location_service.dart';
+// import '../../app_utils/app/location_service.dart';
 import '../../app_utils/app/search_widget.dart';
 import '../assigned_properties/widget/property_expansion_widget.dart';
 import 'widgets/first_card_widget.dart';
@@ -31,6 +31,7 @@ class _DashboardState extends State<Dashboard> {
   List userSummary = [];
   List propertyList = [];
   List foundProperty = [];
+  List propertyListLocal = [];
   final BoxStorage secureStorage = BoxStorage();
   final AlertService alertService = AlertService();
   final PropertyListService service = PropertyListService();
@@ -42,104 +43,91 @@ class _DashboardState extends State<Dashboard> {
   BoxStorage boxStorage = BoxStorage();
 
   LocationService tracking = LocationService();
+  // LocService locService = LocService();
   List locList = [];
-  bool isTripStarted = false;
-  bool isTripEnded = false;
+  // bool isTripStarted = false;
+  // bool isTripEnded = false;
   List latLongList = [];
-  StreamSubscription<LocationData>? _locationSubscription;
-  bool _isLocationEnabled = true;
-  Timer? _locationCheckTimer;
+  bool strtClick = false;
+  bool endclick = false;
+  // Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     debugPrint("----> Dashboard Page <----");
-    _checkLocationAndInitialize();
+    CommonFunctions().loadData(context);
+    _initializeData();
     searchController.addListener(_searchListener);
+    loadState();
+    // _startTimer();
   }
 
-  void _checkLocationAndInitialize() async {
-    await _checkLocationService();
-    await _initializeData();
-  }
-
-  Future<void> _checkLocationService() async {
-    bool serviceEnabled = await Location().serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await Location().requestService();
-      if (!serviceEnabled) {
-        alertService.errorToast(
-            'Location services are disabled. Please enable GPS to continue tracking.');
-        return;
-      }
-    }
-    setState(() {
-      _isLocationEnabled = true;
-    });
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Refresh state when returning to dashboard
+    loadState();
+    // _startTimer();
   }
 
   // Initialize data on page load
   Future<void> _initializeData() async {
+    CommonFunctions().checkPermission();
     await Future.wait([
       getPropertyList(),
       getUserCaseSummary(),
     ]);
   }
 
-  void loadTripState() async {
-    String tripStarted = await boxStorage.get('trip_started') ?? 'false';
-    String tripEnded = await boxStorage.get('trip_ended') ?? 'false';
+  // void _startTimer() {
+  //   debugPrint('------> start timer called ..');
+  //   _timer = Timer.periodic(Duration(seconds: 30), (timer) async {
+  //     String now = DateFormat('HH:mm').format(DateTime.now());
+  //     if (now == '22:59') {
+  //       debugPrint('---> if called');
 
-    setState(() {
-      isTripStarted = tripStarted == 'true';
-      isTripEnded = tripEnded == 'true';
-    });
-  }
+  //       String timestamp =
+  //           DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
+  //       List<String> endTripList = await boxStorage.get('end_trip_date') ?? [];
+  //       endTripList.add(timestamp);
+  //       await boxStorage.save('end_trip_date', endTripList);
 
-  void saveTripState() async {
-    await boxStorage.save('trip_started', isTripStarted.toString());
-    await boxStorage.save('trip_ended', isTripEnded.toString());
-  }
+  //       setState(() {
+  //         strtClick = false;
+  //         endclick = true;
+  //       });
 
-  Future<bool> getTripStatus() async {
-    BoxStorage boxStorage = BoxStorage();
-    String endTripStatus = await boxStorage.get('end_trip_date');
-    if (endTripStatus.isEmpty) {
-      return true;
+  //       timer.cancel(); // stop timer after condition is met
+  //     }
+  //   });
+  // }
+
+  void loadState() async {
+    String todayDate = DateTime.now().toString().substring(0, 10);
+
+    List<String> startTripList = await boxStorage.get('start_trip_date') ?? [];
+    Set<String> endTripList =
+        (await boxStorage.get('end_trip_date') ?? <String>[]).toSet();
+
+    debugPrint('------> EL $endTripList');
+
+    if (endTripList.length < startTripList.length) {
+      setState(() {
+        strtClick = true;
+        endclick = false;
+      });
+    } else if (endTripList.length == startTripList.length) {
+      setState(() {
+        strtClick = false;
+        endclick = true;
+      });
     }
-    return false;
-  }
 
-  void _startLocationMonitoring() {
-    // Check location every 5 seconds
-    _locationCheckTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      _checkLocationAvailability();
-    });
-  }
-
-  void _stopLocationMonitoring() {
-    _locationCheckTimer?.cancel();
-    _locationCheckTimer = null;
-  }
-
-  Future<void> _checkLocationAvailability() async {
-    bool serviceEnabled = await Location().serviceEnabled();
-    PermissionStatus permission = await Location().hasPermission();
-
-    if (!serviceEnabled ||
-        permission == PermissionStatus.denied ||
-        permission == PermissionStatus.deniedForever) {
-      if (!mounted) return;
-      // alertService.errorToast('Location services are required to use this app');
-      bool? alert = await alertService.alert(context, null,
-          'Location services are required to use this app. The app will now exit.');
-      if (alert!) {
-        // exit(0);
-        SystemNavigator.pop();
-      }
-      // await Future.delayed(const Duration(seconds: 2));
-      // exit(0);
-    }
+    debugPrint('---> Checking Dashboard State:');
+    debugPrint('---> Today: $todayDate');
+    debugPrint('---> Start Trip List: $startTripList');
+    debugPrint('---> End Trip List: $endTripList');
   }
 
   @override
@@ -151,6 +139,31 @@ class _DashboardState extends State<Dashboard> {
           child: Column(
             children: <Widget>[
               CustomTheme.defaultSize,
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 0),
+              //   child: SizedBox(
+              //     height: 30,
+              //     width: double.infinity,
+              //     child: ElevatedButton(
+              //         onPressed: () {
+              //           Navigator.push(
+              //             context,
+              //             MaterialPageRoute(
+              //               builder: (context) => const ViewMapPage(),
+              //             ),
+              //           );
+              //         },
+              //         style: ElevatedButton.styleFrom(
+              //             elevation: 3, backgroundColor: Colors.teal[300]),
+              //         child: Text(
+              //           'View Tracking List',
+              //           style: TextStyle(fontSize: 14),
+              //         )),
+              //   ),
+              // ),
+              // SizedBox(
+              //   height: 5,
+              // ),
               if (userSummary.isNotEmpty) ...[
                 _buildSummaryCards(),
                 CustomTheme.defaultSize,
@@ -166,75 +179,94 @@ class _DashboardState extends State<Dashboard> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     TrackButton(
-                        title: 'Start Trip',
-                        onclick: isTripStarted
-                            ? null
-                            : () async {
-                                bool? isOptimize =
-                                    await DisableBatteryOptimization
-                                        .isBatteryOptimizationDisabled;
+                      title: 'Start Trip',
+                      onclick: strtClick
+                          ? null
+                          : () async {
+                              bool? isOptimize =
+                                  await DisableBatteryOptimizationLatest
+                                      .isBatteryOptimizationDisabled;
 
-                                if (isOptimize == false) {
-                                  if (!context.mounted) return;
-                                  bool? confirm =
-                                      await alertService.confirmAlert(
-                                    context,
-                                    'Disable Battery Optimization',
-                                    'To ensure proper functionality, please disable battery optimization for this app.',
-                                  );
+                              if (isOptimize == false) {
+                                // Check if battery optimization is enabled
+                                if (!context.mounted) return;
+                                bool? confirm = await alertService.confirmAlert(
+                                  context,
+                                  'Disable Battery Optimization',
+                                  'To ensure proper functionality, please disable battery optimization for this app.',
+                                );
 
-                                  if (confirm!) {
-                                    await CommonFunctions()
-                                        .checkBatteryOptimization();
-                                    return;
-                                  }
-                                }
-
-                                // Check location service before starting trip
-                                await _checkLocationService();
-                                if (!_isLocationEnabled) {
+                                if (confirm!) {
+                                  await CommonFunctions()
+                                      .checkBatteryOptimization();
                                   return;
                                 }
+                              }
+                              bool? isConfirm = await alertService.confirmAlert(
+                                  context,
+                                  'Start Trip',
+                                  'Current location will be consider as start location. Please confirm to proceed.');
+                              if (isConfirm!) {
+                                alertService.showLoading();
+                                await tracking.startTrackingFromCurrent();
+                                /* String today = DateTime.now().toString().split(' ')[0];
+                            boxStorage.save('start_trip_date', today);
+                           */
+                                String timestamp =
+                                    DateFormat('yyyy-MM-dd HH:mm')
+                                        .format(DateTime.now());
+                                List<String> startTripList =
+                                    await boxStorage.get('start_trip_date') ??
+                                        [];
+                                startTripList
+                                    .add(timestamp); // Store full timestamp
+                                await boxStorage.save(
+                                    'start_trip_date', startTripList);
 
-                                if (!mounted) return;
-                                bool? isConfirm =
-                                    await alertService.confirmAlert(
-                                        context,
-                                        'Start Trip',
-                                        'Are you sure want to Start Trip?');
+                                setState(() {
+                                  strtClick = true;
+                                  endclick = false;
+                                });
+                                alertService.hideLoading();
+                              }
+                            },
+                      color: Colors.green,
+                    ),
+                    if (strtClick)
+                      TrackButton(
+                        title: 'End Trip',
+                        onclick: endclick
+                            ? null
+                            : () async {
+                                bool? isConfirm = await alertService.confirmAlert(
+                                    context,
+                                    'End Trip',
+                                    'Your Location tracking will get stop and you could not start any new trip for the day. Do you want to stop this tracking?');
                                 if (isConfirm!) {
                                   alertService.showLoading();
+                                  await tracking.stopListeningMannual();
+                                  // await locService.stopLocationTracking();
+                                  /*String today = DateTime.now().toString().split(' ')[0];
+                            boxStorage.save('end_trip_date', today);*/
+                                  String timestamp =
+                                      DateFormat('yyyy-MM-dd HH:mm')
+                                          .format(DateTime.now());
+                                  List<String> endTripList =
+                                      await boxStorage.get('end_trip_date') ??
+                                          [];
+                                  endTripList
+                                      .add(timestamp); // Store full timestamp
+                                  await boxStorage.save(
+                                      'end_trip_date', endTripList);
+
                                   setState(() {
-                                    isTripStarted = true;
-                                    isTripEnded = false;
-                                    latLongList
-                                        .clear(); // Clear previous trip data
+                                    endclick = true;
+                                    strtClick = false;
                                   });
-                                  _startLocationMonitoring(); // Start monitoring when trip starts
-                                  saveTripState();
+                                  //await getLocation();
                                   alertService.hideLoading();
                                 }
                               },
-                        color: Colors.green),
-                    if (isTripStarted)
-                      TrackButton(
-                        title: 'End Trip',
-                        onclick: () async {
-                          bool? isConfirm = await alertService.confirmAlert(
-                              context,
-                              'End Trip',
-                              'Are you sure want to End Trip?');
-                          if (isConfirm!) {
-                            alertService.showLoading();
-                            setState(() {
-                              isTripStarted = false;
-                              isTripEnded = true;
-                            });
-                            _stopLocationMonitoring(); // Stop monitoring when trip ends
-                            saveTripState();
-                            alertService.hideLoading();
-                          }
-                        },
                         color: Colors.red,
                       ),
                   ],
@@ -254,6 +286,10 @@ class _DashboardState extends State<Dashboard> {
                           if (done) {
                             getPropertyList();
                           }
+                        },
+                        onPropertySubmitted: () {
+                          // Refresh both property list and user summary
+                          _initializeData();
                         },
                       ),
               ),
@@ -278,12 +314,14 @@ class _DashboardState extends State<Dashboard> {
         ),
         FirstCardWidget(
           title: 'Total Visit',
-          count: userSummary[0]['CaseSubmitted'].toString(),
+          count: (int.parse(userSummary[0]['CaseSubmittedToday'].toString()) +
+                  propertyListLocal.length)
+              .toString(),
           color: Constants.dashTotalColor,
         ),
         FirstCardWidget(
           title: 'Submitted Case',
-          count: userSummary[0]['CaseSubmittedToday'].toString(),
+          count: userSummary[0]['CaseSubmitted'].toString(),
           color: Constants.dashSubmitColor,
         ),
       ],
@@ -446,6 +484,8 @@ class _DashboardState extends State<Dashboard> {
   // Get property list from service
   Future<void> getPropertyList() async {
     propertyList = await service.read();
+    propertyListLocal = await service.readByCompCount();
+    debugPrint('---> ${propertyListLocal.length}');
     foundProperty = propertyList;
     setState(() {});
   }
@@ -500,7 +540,6 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   void dispose() {
-    _locationSubscription?.cancel();
     searchController.dispose();
     super.dispose();
   }

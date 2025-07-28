@@ -63,6 +63,7 @@ class SiteVisitService {
     var response = await connection.post(url, params);
     return response;
   }
+
   /// SAVE MEASUREMENT DETAILS - CreateMeasurementSheet
   saveMeasurementDetails(params) async {
     Connection connection = Connection();
@@ -102,10 +103,19 @@ class SiteVisitService {
     var response = await connection.post(url, params);
     return response;
   }
+
   /// SAVE PHOTOGRAPH DETAILS - CreatePhotograph
   savePhotographDetails(params) async {
     Connection connection = Connection();
     var url = '${EndPoints.baseApi}/CreatePhotograph';
+    var response = await connection.post(url, params);
+    return response;
+  }
+
+  /// SAVE LOCATION TRACKING DETAILS - CreateLocationTRACKING
+  saveLocationTrackingDetails(params) async {
+    Connection connection = Connection();
+    var url = '${EndPoints.baseApi}/CreateLocationTracking';
     var response = await connection.post(url, params);
     return response;
   }
@@ -124,5 +134,4 @@ class SiteVisitService {
     var response = await connection.post(url, requestModel);
     return response;
   }
-
 }

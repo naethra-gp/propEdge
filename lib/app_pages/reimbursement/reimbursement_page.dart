@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:prop_edge/app_services/local_db/local_services/dropdown_services.dart';
+import 'package:prop_edge/app_utils/alert_service2.dart';
 import 'package:prop_edge/app_utils/alert_service.dart';
+import 'package:prop_edge/app_utils/app/common_functions.dart';
 import 'package:prop_edge/app_utils/app_widget/no_data_found.dart';
 
 import '../../app_services/local_db/local_services/local_reimbursement_services.dart';
@@ -34,7 +36,9 @@ class _ReimbursementPageState extends State<ReimbursementPage> {
   @override
   void initState() {
     debugPrint("----> Reimbursement Page <----");
+    CommonFunctions().loadData(context);
     checkInternet();
+    CommonFunctions().checkPermission();
     searchController.addListener(searchListener);
     getReimbursement();
     getDropdown();

@@ -16,7 +16,7 @@ class AppPermission extends StatefulWidget {
 class _AppPermissionState extends State<AppPermission> {
   // Instance of secure storage
   final BoxStorage _boxStorage = BoxStorage();
-  
+
   // Static list of required permissions with their descriptions
   static const List<Map<String, String>> _permissionList = [
     {
@@ -91,21 +91,39 @@ class _AppPermissionState extends State<AppPermission> {
 
   /// Handles requesting all required permissions and navigation
   Future<void> _handlePermissions(BuildContext context) async {
-    // Request all required permissions
-    await [
-      Permission.camera,
-      Permission.location,
-      Permission.phone,
-    ].request();
+    try {
+      // Request all required permissions
+      await [
+        Permission.camera,
+        Permission.location,
+        Permission.phone,
+        Permission.notification,
+      ].request();
 
-    // Save permission status
-    await _boxStorage.save("permission", "true");
-    
-    // Check battery optimization
-    await CommonFunctions().checkBatteryOptimization();
-    
-    // Navigate to login screen if context is still valid
-    if (!context.mounted) return;
-    Navigator.pushNamedAndRemoveUntil(context, "login", (route) => false);
+      // For Android 14+, request foreground service location permission
+      // if (Platform.isAndroid) {
+      //   final androidInfo = await DeviceInfoPlugin().androidInfo;
+      //   if (androidInfo.version.sdkInt >= 34) {
+      //     // Request location permission first
+      //     await Permission.location.request();
+      //     // Then request foreground service location permission
+      //     await Permission.locationAlways.request();
+      //   }
+      // }
+
+      // Save permission status
+      await _boxStorage.save("permission", "true");
+      await _boxStorage.save("fmtLogin", true);
+
+      // Check battery optimization
+      await CommonFunctions().checkBatteryOptimization();
+
+      // Navigate to login screen if context is still valid
+      if (!context.mounted) return;
+      Navigator.pushNamedAndRemoveUntil(context, "login", (route) => false);
+    } catch (e, stackTrace) {
+      CommonFunctions()
+          .appLog(e, stackTrace, fatal: true, reason: "PERMISSION SCREEN");
+    }
   }
 }

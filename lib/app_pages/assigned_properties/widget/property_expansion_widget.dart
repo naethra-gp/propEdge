@@ -4,7 +4,12 @@ import 'dart:io';
 import 'package:expansion_tile_group/expansion_tile_group.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:prop_edge/app_services/local_db/local_services/tracking_service.dart';
+import 'package:prop_edge/app_utils/alert_service.dart';
+import 'package:prop_edge/app_utils/app/common_functions.dart';
+// import 'package:prop_edge/app_utils/app/location_service.dart';
 import 'package:prop_edge/app_utils/app_widget/row_detail_widget.dart';
+import 'package:prop_edge/location_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app_config/app_constants.dart';
@@ -14,16 +19,16 @@ import '../../../app_services/site_visit_service.dart';
 import '../../../app_storage/secure_storage.dart';
 import '../../../app_theme/custom_theme.dart';
 import '../../../app_theme/index.dart';
-import '../../../app_utils/alert_service.dart';
 
 class PropertyExpansionWidget extends StatelessWidget {
   final List searchList;
   final Function(bool) onUpload;
-  final AlertService alertService = AlertService();
-  PropertyExpansionWidget({
+  final Function? onPropertySubmitted;
+  const PropertyExpansionWidget({
     super.key,
     required this.searchList,
     required this.onUpload,
+    this.onPropertySubmitted,
   });
 
   @override
@@ -140,12 +145,45 @@ class PropertyExpansionWidget extends StatelessWidget {
                         width: 100.0,
                         height: 50.0,
                         child: ElevatedButton(
-                          onPressed: () {
-                            // debugPrint(
-                            //     "--- Uploading ${item['PropId'].toString()} ---");
-                            // uploadLocalToLive(item['PropId'].toString());
-                            Navigator.pushNamed(context, "site_visit_form",
-                                arguments: item['PropId'].toString());
+                          onPressed: () async {
+                            bool isInTrackingState =
+                                await isTripInTrackingState();
+
+                            if (!isInTrackingState) {
+                              bool? isConfirm = await AlertService().confirmAlert(
+                                  context,
+                                  'Alert!',
+                                  'Current location will be consider as start location. Please confirm to proceed.');
+                              if (isConfirm!) {
+                                BoxStorage secureStorage = BoxStorage();
+                                List<String> startTripList = await secureStorage
+                                        .get('start_trip_date') ??
+                                    [];
+
+                                // Add current date-time to start trip list
+                                startTripList.add(DateTime.now().toString());
+
+                                await secureStorage.save(
+                                    'start_trip_date', startTripList);
+
+                                AlertService().showLoading();
+                                // Start location tracking
+                                await LocationService()
+                                    .startTrackingFromCurrent();
+
+                                AlertService().hideLoading();
+                                // Force dashboard to reload state
+                                if (context.mounted) {
+                                  Navigator.pushReplacementNamed(context, '/');
+                                }
+
+                                Navigator.pushNamed(context, "site_visit_form",
+                                    arguments: item['PropId'].toString());
+                              }
+                            } else {
+                              Navigator.pushNamed(context, "site_visit_form",
+                                  arguments: item['PropId'].toString());
+                            }
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
@@ -171,6 +209,16 @@ class PropertyExpansionWidget extends StatelessWidget {
                         height: 50.0,
                         child: ElevatedButton(
                           onPressed: () async {
+                            // BoxStorage boxStorage = BoxStorage();
+                            // bool isInTrackingState =
+                            //     await boxStorage.isTripInTrackingState();
+
+                            // if (!isInTrackingState) {
+                            //   AlertService().errorToast(
+                            //       "You can only upload forms during an active trip");
+                            //   return;
+                            // }
+
                             debugPrint(
                                 "--- Uploading ${item['PropId'].toString()} ---");
                             uploadLocalToLive(item['PropId'].toString());
@@ -200,6 +248,62 @@ class PropertyExpansionWidget extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // Check if trip is in tracking state
+  Future<bool> isTripInTrackingState() async {
+    BoxStorage boxStorage = BoxStorage();
+    String todayDate = DateTime.now().toString().substring(0, 10);
+    List<String> startTripList = await boxStorage.get('start_trip_date') ?? [];
+    List<String> endTripList = await boxStorage.get('end_trip_date') ?? [];
+
+    debugPrint('---> Checking Trip State:');
+    debugPrint('---> Today: $todayDate');
+    debugPrint('---> Start Trip List: $startTripList');
+    debugPrint('---> End Trip List: $endTripList');
+
+    if (endTripList.length < startTripList.length) {
+      return true;
+    }
+    return false;
+
+    // if (startTripList.isEmpty) return false;
+
+    // // Get the latest start and end times for today
+    // DateTime? lastStartTime;
+    // DateTime? lastEndTime;
+
+    // // Find the latest start time for today
+    // for (String startTime in startTripList) {
+    //   if (startTime.substring(0, 10) == todayDate) {
+    //     DateTime dateTime = DateTime.parse(startTime.replaceAll(' ', 'T'));
+    //     if (lastStartTime == null || dateTime.isAfter(lastStartTime)) {
+    //       lastStartTime = dateTime;
+    //     }
+    //   }
+    // }
+
+    // // Find the latest end time for today
+    // for (String endTime in endTripList) {
+    //   if (endTime.substring(0, 10) == todayDate) {
+    //     DateTime dateTime = DateTime.parse(endTime.replaceAll(' ', 'T'));
+    //     if (lastEndTime == null || dateTime.isAfter(lastEndTime)) {
+    //       lastEndTime = dateTime;
+    //     }
+    //   }
+    // }
+
+    // debugPrint('---> Last Start Time: $lastStartTime');
+    // debugPrint('---> Last End Time: $lastEndTime');
+
+    // // Trip is active if:
+    // // 1. We have a start time today AND
+    // // 2. Either there's no end time OR the last start is after the last end
+    // bool isActive = lastStartTime != null &&
+    //     (lastEndTime == null || lastStartTime.isAfter(lastEndTime));
+
+    // debugPrint('---> Trip is active: $isActive');
+    // return isActive;
   }
 
   maskNumber(item) {
@@ -262,358 +366,463 @@ class PropertyExpansionWidget extends StatelessWidget {
     LocationMapService locationMapService = LocationMapService();
     PlanService planService = PlanService();
     PhotographService photographService = PhotographService();
+    TrackingServices trackingServices = TrackingServices();
 
     /// GET TOKEN
     String token = "";
     token = secureStorage.getLoginToken();
     alertService.showLoading('Please wait...');
 
+    // Upload location tracking data first
+    try {
+      List locationTracking = await trackingServices.readBySync();
+      if (locationTracking.isNotEmpty) {
+        var locationParams = {
+          "locationTracking": locationTracking
+              .map((e) => {
+                    "Latitude": e['Latitude'],
+                    "Longitude": e['Longitude'],
+                    "Timestamp": removeNull(e['Timestamp']
+                        .toString()
+                        .replaceFirst(',', ' ')
+                        .toString()),
+                    "TrackStatus": removeNull(e['TrackStatus'].toString()),
+                  })
+              .toList(),
+          "loginToken": {"Token": token}
+        };
+
+        var response =
+            await siteVisitService.saveLocationTrackingDetails(locationParams);
+        debugPrint('locationParams ${locationParams}');
+
+        if (response != null && response['Status'] != null) {
+          if (response['Status']['IsSuccess'] == true) {
+            debugPrint('---> Location Tracking Saved Successfully. <---');
+          } else {
+            debugPrint(
+                '---> Location Tracking Save Failed: ${response['Status']['Message']} <---');
+          }
+        }
+      }
+    } catch (e, stackTrace) {
+      CommonFunctions()
+          .appLog(e, stackTrace, fatal: true, reason: "LOCATION TRACKING API");
+    }
+
     /// SAVE PROPERTY DETAILS
     List property = await propertyService.readSync(propId);
     final propertyType = property[0]['PropertyType'];
     bool propertyValid =
         propertyType == '953' || propertyType == '954' || propertyType == '952';
-
-    var propertyParams = {
-      "propertyDetails": {
-        "PropId": propId,
-        "AddressMatching": removeNull(property[0]['AddressMatching']),
-        "AgeOfProperty": removeNull(property[0]['AgeOfProperty']),
-        "AreaOfProperty": removeNull(property[0]['AreaOfProperty']),
-        "BHKConfiguration": convertZero(property[0]['BHKConfiguration']),
-        "City": convertZero(property[0]['City']),
-        "Colony": removeNull(property[0]['Colony']),
-        "ConditionOfProperty": convertZero(property[0]['ConditionOfProperty']),
-        "ConstructionOldNew": convertZero(property[0]['ConstructionOldNew']),
-        "DeveloperName": removeNull(property[0]['DeveloperName']),
-        "Floor": convertZero(property[0]['Floor']),
-        "FloorOthers": removeNull(property[0]['FloorOthers']),
-        "KitchenAndCupboardsExisting":
-            removeNull(property[0]['KitchenAndCupboardsExisting']),
-        "KitchenOrPantry": removeNull(property[0]['KitchenOrPantry']),
-        "KitchenType": convertZero(property[0]['KitchenType']),
-        "LandArea": removeNull(property[0]['LandArea']),
-        // "LocalMuniciapalBody": property[0]['LocalMuniciapalBody'],
-        "MaintainanceLevel": removeNull(property[0]['MaintainanceLevel']),
-        "NameOfMunicipalBody": removeNull(property[0]['NameOfMunicipalBody']),
-        "NoOfLifts": removeNull(property[0]['NoOfLifts']),
-        "NoOfStaircases": removeNull(property[0]['NoOfStaircases']),
-        "Pincode": removeNull(property[0]['Pincode']),
-        "PlotAreaMtrs": removeNull(property[0]['PlotAreaMtrs']),
-        "PlotAreaSqft": removeNull(property[0]['PlotAreaSqft']),
-        "PlotAreaYards": removeNull(property[0]['PlotAreaYards']),
-        "PlotUnitType": removeNull(property[0]['PlotUnitType']),
-        "ProjectName": removeNull(property[0]['ProjectName']),
-        "PropertyAddressAsPerSite":
-            removeNull(property[0]['PropertyAddressAsPerSite']),
-        "PropertyArea": removeNull(property[0]['PropertyArea']),
-        "PropertySubType": convertZero(property[0]['PropertySubType']),
-        "PropertyType": convertZero(property[0]['PropertyType']),
-        "Region": convertZero(property[0]['Region']),
-        "Structure": convertZero(property[0]['Structure']),
-        "StructureOthers": removeNull(property[0]['StructureOthers']),
-      },
-      "loginToken": {"Token": token}
-    };
-    // print("propertyParams ${jsonEncode(propertyParams)}");
-    siteVisitService.savePropertyDetails(propertyParams).then((res1) {
-      if (res1['Status'] == true) {
-        debugPrint('---> Property Details Saved Successfully. <---');
-      }
-    });
+    try {
+      var propertyParams = {
+        "propertyDetails": {
+          "PropId": propId,
+          "AddressMatching": removeNull(property[0]['AddressMatching']),
+          "AgeOfProperty": removeNull(property[0]['AgeOfProperty']),
+          "AreaOfProperty": removeNull(property[0]['AreaOfProperty']),
+          "BHKConfiguration": convertZero(property[0]['BHKConfiguration']),
+          "City": convertZero(property[0]['City']),
+          "Colony": removeNull(property[0]['Colony']),
+          "ConditionOfProperty":
+              convertZero(property[0]['ConditionOfProperty']),
+          "ConstructionOldNew": convertZero(property[0]['ConstructionOldNew']),
+          "DeveloperName": removeNull(property[0]['DeveloperName']),
+          "Floor": convertZero(property[0]['Floor']),
+          "FloorOthers": removeNull(property[0]['FloorOthers']),
+          "KitchenAndCupboardsExisting":
+              removeNull(property[0]['KitchenAndCupboardsExisting']),
+          "KitchenOrPantry": removeNull(property[0]['KitchenOrPantry']),
+          "KitchenType": convertZero(property[0]['KitchenType']),
+          "LandArea": removeNull(property[0]['LandArea']),
+          // "LocalMuniciapalBody": property[0]['LocalMuniciapalBody'],
+          "MaintainanceLevel": removeNull(property[0]['MaintainanceLevel']),
+          "NameOfMunicipalBody": removeNull(property[0]['NameOfMunicipalBody']),
+          "NoOfLifts": removeNull(property[0]['NoOfLifts']),
+          "NoOfStaircases": removeNull(property[0]['NoOfStaircases']),
+          "Pincode": removeNull(property[0]['Pincode']),
+          "PlotAreaMtrs": removeNull(property[0]['PlotAreaMtrs']),
+          "PlotAreaSqft": removeNull(property[0]['PlotAreaSqft']),
+          "PlotAreaYards": removeNull(property[0]['PlotAreaYards']),
+          "PlotUnitType": removeNull(property[0]['PlotUnitType']),
+          "ProjectName": removeNull(property[0]['ProjectName']),
+          "PropertyAddressAsPerSite":
+              removeNull(property[0]['PropertyAddressAsPerSite']),
+          "PropertyArea": removeNull(property[0]['PropertyArea']),
+          "PropertySubType": convertZero(property[0]['PropertySubType']),
+          "PropertyType": convertZero(property[0]['PropertyType']),
+          "Region": convertZero(property[0]['Region']),
+          "Structure": convertZero(property[0]['Structure']),
+          "StructureOthers": removeNull(property[0]['StructureOthers']),
+        },
+        "loginToken": {"Token": token}
+      };
+      print("propertyParams ${jsonEncode(propertyParams)}");
+      siteVisitService.savePropertyDetails(propertyParams).then((res1) {
+        if (res1['Status'] == true) {
+          debugPrint('---> Property Details Saved Successfully. <---');
+        }
+      });
+    } catch (e, stackTrace) {
+      CommonFunctions()
+          .appLog(e, stackTrace, fatal: true, reason: "PROPERTY DETAILS API");
+    }
 
     /// SAVE AREA DETAILS
-    List area = await areaService.readSync(propId);
-    var areaParam = {
-      "areaDetails": {
-        "AnyNegativeToTheLocality":
-            removeNull(area[0]['AnyNegativeToTheLocality']),
-        "ClassOfLocality": convertZero(area[0]['ClassOfLocality']),
-        "ConditionAndWidthOfApproachRoad":
-            removeNull(area[0]['ConditionAndWidthOfApproachRoad']),
-        "InfrastructureConditionOfNeighboringAreas":
-            convertZero(area[0]['InfrastructureConditionOfNeighboringAreas']),
-        "InfrastructureOfTheSurroundingArea":
-            convertZero(area[0]['InfrastructureOfTheSurroundingArea']),
-        "LandUseOfNeighboringAreas":
-            convertZero(area[0]['LandUseOfNeighboringAreas']),
-        "Latitude": area[0]['Latitude'],
-        "Longitude": area[0]['Longitude'],
-        "NatureOfLocality": convertZero(area[0]['NatureOfLocality']),
-        "NearbyLandmark": removeNull(area[0]['NearbyLandmark']),
-        "PropId": propId,
-        "PublicTransport": jsonDecode(area[0]['PublicTransport']),
-        "SiteAccess": convertZero(area[0]['SiteAccess']),
-      },
-      "loginToken": {"Token": token}
-    };
-    siteVisitService.saveAreaDetails(areaParam).then((res1) {
-      if (res1['Status'] == true) {
-        debugPrint('---> Area Details Saved Successfully. <---');
-      }
-    });
+    try {
+      List area = await areaService.readSync(propId);
+      var areaParam = {
+        "areaDetails": {
+          "AnyNegativeToTheLocality":
+              removeNull(area[0]['AnyNegativeToTheLocality']),
+          "ClassOfLocality": convertZero(area[0]['ClassOfLocality']),
+          "ConditionAndWidthOfApproachRoad":
+              removeNull(area[0]['ConditionAndWidthOfApproachRoad']),
+          "InfrastructureConditionOfNeighboringAreas":
+              convertZero(area[0]['InfrastructureConditionOfNeighboringAreas']),
+          "InfrastructureOfTheSurroundingArea":
+              convertZero(area[0]['InfrastructureOfTheSurroundingArea']),
+          "LandUseOfNeighboringAreas":
+              convertZero(area[0]['LandUseOfNeighboringAreas']),
+          "Latitude": area[0]['Latitude'],
+          "Longitude": area[0]['Longitude'],
+          "Amenities": removeNull(area[0]['Amenities']),
+          "NatureOfLocality": convertZero(area[0]['NatureOfLocality']),
+          "NearbyLandmark": removeNull(area[0]['NearbyLandmark']),
+          "PropId": propId,
+          "PublicTransport": jsonDecode(area[0]['PublicTransport']),
+          "SiteAccess": convertZero(area[0]['SiteAccess']),
+        },
+        "loginToken": {"Token": token}
+      };
+      print("areaParam ${jsonEncode(areaParam)}");
+      siteVisitService.saveAreaDetails(areaParam).then((res1) {
+        if (res1['Status'] == true) {
+          debugPrint('---> Area Details Saved Successfully. <---');
+        }
+      });
+    } catch (e, stackTrace) {
+      CommonFunctions()
+          .appLog(e, stackTrace, fatal: true, reason: "AREA DETAILS API");
+    }
 
     /// SAVE OCCUPANCY DETAILS
-    List occupancy = await occupancyService.readSync(propId);
-    var occupancyParams = {
-      "occupancyDetails": {
-        "PropId": propId,
-        "StatusOfOccupancy":
-            convertZero(occupancy[0]['StatusOfOccupancy'].toString()),
-        "RelationshipOfOccupantWithCustomer": convertZero(
-            occupancy[0]['RelationshipOfOccupantWithCustomer'].toString()),
-        "OccupiedSince": removeNull(occupancy[0]['OccupiedSince'].toString()),
-        "OccupiedBy": removeNull(occupancy[0]['OccupiedBy'].toString()),
-        "OccupantContactNo":
-            removeNull(occupancy[0]['OccupantContactNo'].toString()),
-        "PersonMetAtSite":
-            removeNull(occupancy[0]['PersonMetAtSite'].toString()),
-        "PersonMetAtSiteContNo":
-            removeNull(occupancy[0]['PersonMetAtSiteContNo'].toString()),
-      },
-      "loginToken": {"Token": token}
-    };
-    siteVisitService.saveOccupancyDetails(occupancyParams).then((res1) {
-      if (res1['Status'] == true) {
-        debugPrint('---> Occupancy Details Saved Successfully. <---');
-      }
-    });
+    try {
+      List occupancy = await occupancyService.readSync(propId);
+      var occupancyParams = {
+        "occupancyDetails": {
+          "PropId": propId,
+          "StatusOfOccupancy":
+              convertZero(occupancy[0]['StatusOfOccupancy'].toString()),
+          "RelationshipOfOccupantWithCustomer": convertZero(
+              occupancy[0]['RelationshipOfOccupantWithCustomer'].toString()),
+          "OccupiedSince": removeNull(occupancy[0]['OccupiedSince'].toString()),
+          "OccupiedBy": removeNull(occupancy[0]['OccupiedBy'].toString()),
+          "OccupantContactNo":
+              removeNull(occupancy[0]['OccupantContactNo'].toString()),
+          "PersonMetAtSite":
+              removeNull(occupancy[0]['PersonMetAtSite'].toString()),
+          "PersonMetAtSiteContNo":
+              removeNull(occupancy[0]['PersonMetAtSiteContNo'].toString()),
+        },
+        "loginToken": {"Token": token}
+      };
+      siteVisitService.saveOccupancyDetails(occupancyParams).then((res1) {
+        if (res1['Status'] == true) {
+          debugPrint('---> Occupancy Details Saved Successfully. <---');
+        }
+      });
+    } catch (e, stackTrace) {
+      CommonFunctions()
+          .appLog(e, stackTrace, fatal: true, reason: "OCCUPANCY DETAILS API");
+    }
 
     /// SAVE Boundary DETAILS
-    List boundary = await boundaryService.readSync(propId);
-    var boundaryParams = {
-      "boundaryDetails": {
-        "PropId": propId,
-        "AsPerSite": {
-          "East": removeNull(boundary[0]['East'].toString()),
-          "West": removeNull(boundary[0]['West'].toString()),
-          "South": removeNull(boundary[0]['South'].toString()),
-          "North": removeNull(boundary[0]['North'].toString()),
+    try {
+      List boundary = await boundaryService.readSync(propId);
+      var boundaryParams = {
+        "boundaryDetails": {
+          "PropId": propId,
+          "AsPerSite": {
+            "East": removeNull(boundary[0]['East'].toString()),
+            "West": removeNull(boundary[0]['West'].toString()),
+            "South": removeNull(boundary[0]['South'].toString()),
+            "North": removeNull(boundary[0]['North'].toString()),
+          }
+        },
+        "loginToken": {"Token": token}
+      };
+      siteVisitService.saveBoundaryDetails(boundaryParams).then((res1) {
+        if (res1['Status'] == true) {
+          debugPrint('---> Boundary Details Saved Successfully. <---');
         }
-      },
-      "loginToken": {"Token": token}
-    };
-    siteVisitService.saveBoundaryDetails(boundaryParams).then((res1) {
-      if (res1['Status'] == true) {
-        debugPrint('---> Boundary Details Saved Successfully. <---');
-      }
-    });
+      });
+    } catch (e, stackTrace) {
+      CommonFunctions()
+          .appLog(e, stackTrace, fatal: true, reason: "Boundary DETAILS API");
+    }
 
     if (propertyValid) {
       /// SAVE MEASUREMENTS DETAILS
-      List measurement = await measurementServices.readSync(propId);
-      if (measurement.isNotEmpty) {
-        var mParam = {
-          "measurementSheets": {
-            "Sheet": jsonDecode(measurement[0]['Sheet']),
-            "SheetType": measurement[0]['SheetType'],
-            "SizeType": measurement[0]['SizeType'],
-            "PropId": propId
-          },
-          "loginToken": {"Token": token}
-        };
-        siteVisitService.saveMeasurementDetails(mParam).then((res1) {
-          if (res1['Status'] == true) {
-            debugPrint('---> Measurement Details Saved Successfully. <---');
-          }
-        });
+      try {
+        List measurement = await measurementServices.readSync(propId);
+        if (measurement.isNotEmpty) {
+          var mParam = {
+            "measurementSheets": {
+              "Sheet": jsonDecode(measurement[0]['Sheet']),
+              "SheetType": measurement[0]['SheetType'],
+              "SizeType": measurement[0]['SizeType'],
+              "PropId": propId
+            },
+            "loginToken": {"Token": token}
+          };
+          siteVisitService.saveMeasurementDetails(mParam).then((res1) {
+            if (res1['Status'] == true) {
+              debugPrint('---> Measurement Details Saved Successfully. <---');
+            }
+          });
+        }
+      } catch (e, stackTrace) {
+        CommonFunctions().appLog(e, stackTrace,
+            fatal: true, reason: "MEASUREMENTS DETAILS API");
       }
 
       /// SAVE STAGE CALCULATOR DETAILS
-      List calculator = await calculatorService.readSync(propId);
-      if (calculator.isNotEmpty) {
-        var calParams = {
-          "stageCalculator": {
-            "PropId": propId,
-            "CalculatorDetails": {
-              "Id": json.decode(calculator[0]['Id']),
-              "MasterId": json.decode(calculator[0]['MasterId']),
-              "Progress": json.decode(calculator[0]['Progress']),
-              "ProgressPer": json.decode(calculator[0]['ProgressPer']),
-              "ProgressPerAsPerPolicy":
-                  json.decode(calculator[0]['ProgressPerAsPerPolicy']),
-              "Recommended": json.decode(calculator[0]['Recommended']),
-              "RecommendedPer": json.decode(calculator[0]['RecommendedPer']),
-              "TotalFloor": json.decode(calculator[0]['TotalFloor']),
-              "CompletedFloor": json.decode(calculator[0]['CompletedFloor']),
+      try {
+        List calculator = await calculatorService.readSync(propId);
+        if (calculator.isNotEmpty) {
+          var calParams = {
+            "stageCalculator": {
+              "PropId": propId,
+              "CalculatorDetails": {
+                "Id": json.decode(calculator[0]['Id']),
+                "MasterId": json.decode(calculator[0]['MasterId']),
+                "Progress": json.decode(calculator[0]['Progress']),
+                "ProgressPer": json.decode(calculator[0]['ProgressPer']),
+                "ProgressPerAsPerPolicy":
+                    json.decode(calculator[0]['ProgressPerAsPerPolicy']),
+                "Recommended": json.decode(calculator[0]['Recommended']),
+                "RecommendedPer": json.decode(calculator[0]['RecommendedPer']),
+                "TotalFloor": json.decode(calculator[0]['TotalFloor']),
+                "CompletedFloor": json.decode(calculator[0]['CompletedFloor']),
+              }
+            },
+            "loginToken": {"Token": token}
+          };
+          siteVisitService.saveStageCalculatorDetails(calParams).then((res1) {
+            if (res1['Status'] == true) {
+              debugPrint('---> Calculator Details Saved Successfully. <---');
             }
-          },
-          "loginToken": {"Token": token}
-        };
-        siteVisitService.saveStageCalculatorDetails(calParams).then((res1) {
-          if (res1['Status'] == true) {
-            debugPrint('---> Calculator Details Saved Successfully. <---');
-          }
-        });
+          });
+        }
+      } catch (e, stackTrace) {
+        CommonFunctions().appLog(e, stackTrace,
+            fatal: true, reason: "STAGE CALCULATOR DETAILS API");
       }
     }
 
     /// SAVE CRITICAL COMMENTS DETAILS
-    List comments = await commentsServices.readSync(propId);
-    var commentsParams = {
-      "criticalComment": {
-        "PropId": propId,
-        "Comment": removeNull(comments[0]['Comments']),
-      },
-      "loginToken": {"Token": token}
-    };
-    siteVisitService.saveCommentsDetails(commentsParams).then((res1) {
-      if (res1['Status'] == true) {
-        debugPrint('---> Comments Saved Successfully. <---');
-      }
-    });
+    try {
+      List comments = await commentsServices.readSync(propId);
+      var commentsParams = {
+        "criticalComment": {
+          "PropId": propId,
+          "Comment": removeNull(comments[0]['Comment']),
+        },
+        "loginToken": {"Token": token}
+      };
+      print("commentsParams ${jsonEncode(commentsParams)}");
+      siteVisitService.saveCommentsDetails(commentsParams).then((res1) {
+        if (res1['Status'] == true) {
+          debugPrint('---> Comments Saved Successfully. <---');
+        }
+      });
+    } catch (e, stackTrace) {
+      CommonFunctions().appLog(e, stackTrace,
+          fatal: true, reason: "CRITICAL COMMENTS DETAILS API");
+    }
 
     /// SAVE LOCATION MAP DETAILS
-    List locationMap = await locationMapService.readSync(propId);
-    for (var i in locationMap) {
-      String path = i['ImagePath'].toString();
-      String valid = path == "" ? "" : path;
-      String baseString = "";
-      if (!Uri.parse(path).isAbsolute && valid != "") {
-        baseString = await getBase64String(path);
+    try {
+      List locationMap = await locationMapService.readSync(propId);
+      for (var i in locationMap) {
+        String path = i['ImagePath'].toString();
+        String valid = path == "" ? "" : path;
+        String baseString = "";
+        if (!Uri.parse(path).isAbsolute && valid != "") {
+          baseString = await getBase64String(path);
+        }
+        var lmReq = {
+          "loginToken": {"Token": token.toString()},
+          "imageDetails": {
+            "PropId": propId.toString(),
+            "ImageDesc": i['ImageDesc'].toString().trim(),
+            "ImageName": i['ImageName'].toString().trim(),
+            "IsResizeImage": true,
+            "ImageBase64String": baseString.toString(),
+          },
+        };
+        String id = i['Id'].toString();
+        String isActive = i['IsActive'].toString();
+        if (id == "0" && isActive == "N") {
+          await locationMapService.deleteById(id);
+        } else if (id != "0" && isActive == "N") {
+          await deleteLiveData(i);
+        } else {
+          siteVisitService.saveLocationMapDetails(lmReq).then((data) async {
+            debugPrint('---> Location Map Saved Successfully. <---');
+          });
+        }
       }
-      var lmReq = {
-        "loginToken": {"Token": token.toString()},
-        "imageDetails": {
-          "PropId": propId.toString(),
-          "ImageDesc": i['ImageDesc'].toString().trim(),
-          "ImageName": i['ImageName'].toString().trim(),
-          "IsResizeImage": true,
-          "ImageBase64String": baseString.toString(),
-        },
-      };
-      String id = i['Id'].toString();
-      String isActive = i['IsActive'].toString();
-      if (id == "0" && isActive == "N") {
-        await locationMapService.deleteById(id);
-      } else if (id != "0" && isActive == "N") {
-        await deleteLiveData(i);
-      } else {
-        siteVisitService.saveLocationMapDetails(lmReq).then((data) async {
-          debugPrint('---> Location Map Saved Successfully. <---');
-        });
-      }
+    } catch (e, stackTrace) {
+      CommonFunctions().appLog(e, stackTrace,
+          fatal: true, reason: "LOCATION MAP DETAILS API");
     }
 
     /// SAVE PROPERTY PLAN DETAILS
-    List propertyPlan = await planService.readSync(propId);
-    for (var list in propertyPlan) {
-      String path = list['ImagePath'].toString();
-      String valid = path == "" ? "" : path;
-      String baseString = "";
-      if (!Uri.parse(path).isAbsolute && valid != "") {
-        baseString = await getBase64String(path);
+    try {
+      List propertyPlan = await planService.readSync(propId);
+      for (var list in propertyPlan) {
+        String path = list['ImagePath'].toString();
+        String valid = path == "" ? "" : path;
+        String baseString = "";
+        if (!Uri.parse(path).isAbsolute && valid != "") {
+          baseString = await getBase64String(path);
+        }
+        var psReq = {
+          "imageDetails": {
+            "PropId": propId.toString(),
+            "ImageBase64String": baseString.toString(),
+            "ImageDesc": list['ImageDesc'].toString().trim(),
+            "ImageName": list['ImageName'].toString().trim(),
+            "IsResizeImage": true,
+          },
+          "loginToken": {"Token": token.toString()}
+        };
+        // print(psReq);
+        String id = list['Id'].toString();
+        String isActive = list['IsActive'].toString();
+        if (id == "0" && isActive == "N") {
+          await planService.deleteById(id);
+        } else if (id != "0" && isActive == "N") {
+          await deleteLiveData(list);
+        } else {
+          siteVisitService.savePropertyPlanDetails(psReq).then((data) async {
+            debugPrint('---> Property Plan Saved Successfully. <---');
+          });
+        }
       }
-      var psReq = {
-        "imageDetails": {
-          "PropId": propId.toString(),
-          "ImageBase64String": baseString.toString(),
-          "ImageDesc": list['ImageDesc'].toString().trim(),
-          "ImageName": list['ImageName'].toString().trim(),
-          "IsResizeImage": true,
-        },
-        "loginToken": {"Token": token.toString()}
-      };
-      // print(psReq);
-      String id = list['Id'].toString();
-      String isActive = list['IsActive'].toString();
-      if (id == "0" && isActive == "N") {
-        await planService.deleteById(id);
-      } else if (id != "0" && isActive == "N") {
-        await deleteLiveData(list);
-      } else {
-        siteVisitService.savePropertyPlanDetails(psReq).then((data) async {
-          debugPrint('---> Property Plan Saved Successfully. <---');
-        });
-      }
+    } catch (e, stackTrace) {
+      CommonFunctions().appLog(e, stackTrace,
+          fatal: true, reason: "PROPERTY PLAN DETAILS API");
     }
 
     /// SAVE PHOTOGRAPH DETAILS
-    List photograph = await photographService.readSync(propId);
-    for (var list in photograph) {
-      String path = list['ImagePath'].toString();
-      String valid = path == "" ? "" : path;
-      String baseString = "";
-      if (!Uri.parse(path).isAbsolute && valid != "") {
-        baseString = await getBase64String(path);
+    try {
+      List photograph = await photographService.readSync(propId);
+      for (var list in photograph) {
+        String path = list['ImagePath'].toString();
+        String valid = path == "" ? "" : path;
+        String baseString = "";
+        if (!Uri.parse(path).isAbsolute && valid != "") {
+          baseString = await getBase64String(path);
+        }
+        var photoReq = {
+          "imageDetails": {
+            "PropId": propId.toString(),
+            "ImageDesc": list['ImageDesc'].toString().trim(),
+            "ImageName": list['ImageName'].toString().trim(),
+            "IsResizeImage": true,
+            "ImageBase64String": baseString.toString(),
+          },
+          "loginToken": {"Token": token.toString()},
+        };
+        String id = list['Id'].toString();
+        String isActive = list['IsActive'].toString();
+        if (id == "0" && isActive == "N") {
+          await photographService.deleteById(id);
+        } else if (id != "0" && isActive == "N") {
+          await deleteLiveData(list);
+        } else {
+          siteVisitService.savePhotographDetails(photoReq).then((data) async {
+            debugPrint('---> Photograph Saved Successfully. <---');
+          });
+        }
       }
-      var photoReq = {
-        "imageDetails": {
-          "PropId": propId.toString(),
-          "ImageDesc": list['ImageDesc'].toString().trim(),
-          "ImageName": list['ImageName'].toString().trim(),
-          "IsResizeImage": true,
-          "ImageBase64String": baseString.toString(),
-        },
-        "loginToken": {"Token": token.toString()},
-      };
-      String id = list['Id'].toString();
-      String isActive = list['IsActive'].toString();
-      if (id == "0" && isActive == "N") {
-        await photographService.deleteById(id);
-      } else if (id != "0" && isActive == "N") {
-        await deleteLiveData(list);
-      } else {
-        siteVisitService.savePhotographDetails(photoReq).then((data) async {
-          debugPrint('---> Photograph Saved Successfully. <---');
-        });
-      }
+    } catch (e, stackTrace) {
+      CommonFunctions()
+          .appLog(e, stackTrace, fatal: true, reason: "PHOTOGRAPH DETAILS API");
     }
 
     /// SUBMIT PROPERTIES
     Future.delayed(const Duration(seconds: 10), () {
-      //   var finalReq = {
-      //     "PropId": propId.toString(),
-      //     "loginToken": {"Token": token.toString()}
-      //   };
-      //
-      deleteLocalData(propId.toString());
-      //   siteVisitService.submitProperty(finalReq).then((data) async {
-      //     if (data['Status']) {
-      //       deleteLocalData(propId.toString());
-      //     } else {
-      //       alertService.hideLoading();
-      //       alertService.errorToast(Constants.apiErrorMessage);
-      //     }
-      //   });
+      try {
+        var finalReq = {
+          "PropId": propId.toString(),
+          "loginToken": {"Token": token.toString()}
+        };
+        UserCaseSummaryService caseSummaryService = UserCaseSummaryService();
+        deleteLocalData(propId.toString());
+        siteVisitService.submitProperty(finalReq).then((data) async {
+          if (data['Status']) {
+            deleteLocalData(propId.toString());
+            var req = {
+              "loginToken": {"Token": token.toString()}
+            };
+            final response = await siteVisitService.getUserSummary(req);
+            alertService.hideLoading();
+
+            if (response != false && response['Summary'] != null) {
+              await caseSummaryService.insert(response['Summary']);
+              if (onPropertySubmitted != null) {
+                onPropertySubmitted!();
+              }
+            } else {
+              alertService.errorToast("Error: User Summary!");
+            }
+          } else {
+            alertService.hideLoading();
+            alertService.errorToast(Constants.apiErrorMessage);
+          }
+        });
+      } catch (e, stackTrace) {
+        CommonFunctions().appLog(e, stackTrace,
+            fatal: true, reason: Constants.apiErrorMessage);
+      }
     });
   }
 
   deleteLocalData(String propId) async {
-    await alertService.showLoading();
-    try {
-      final db = await DatabaseServices.instance.database;
-      await db.rawQuery(
-          'DELETE FROM ${Constants.propertyList} WHERE PropId =$propId');
-      await db.rawQuery(
-          'DELETE FROM ${Constants.customerBankDetails} WHERE PropId =$propId');
-      await db.rawQuery(
-          'DELETE FROM ${Constants.propertyDetails} WHERE PropId =$propId');
-      await db
-          .rawQuery('DELETE FROM ${Constants.areaDetails} WHERE PropId =$propId');
-      await db.rawQuery(
-          'DELETE FROM ${Constants.occupancyDetails} WHERE PropId =$propId');
-      await db.rawQuery(
-          'DELETE FROM ${Constants.boundaryDetails} WHERE PropId =$propId');
-      await db.rawQuery(
-          'DELETE FROM ${Constants.measurementSheet} WHERE PropId =$propId');
-      await db.rawQuery(
-          'DELETE FROM ${Constants.stageCalculator} WHERE PropId =$propId');
-      await db.rawQuery(
-          'DELETE FROM ${Constants.criticalComment} WHERE PropId =$propId');
-      await db
-          .rawQuery('DELETE FROM ${Constants.locationMap} WHERE PropId =$propId');
-      await db.rawQuery(
-          'DELETE FROM ${Constants.propertyPlan} WHERE PropId =$propId');
-      await db
-          .rawQuery('DELETE FROM ${Constants.photograph} WHERE PropId =$propId');
-      await alertService.hideLoading();
-      await alertService.successToast(Constants.apiSuccessMessage);
-      onUpload(true);
-    } catch (e) {
-      await alertService.hideLoading();
-      await alertService.errorToast('Error deleting local data');
-    }
+    AlertService alertService = AlertService();
+    final db = await DatabaseServices.instance.database;
+    await db.rawQuery(
+        'DELETE FROM ${Constants.propertyList} WHERE PropId =$propId');
+    await db.rawQuery(
+        'DELETE FROM ${Constants.customerBankDetails} WHERE PropId =$propId');
+    await db.rawQuery(
+        'DELETE FROM ${Constants.propertyDetails} WHERE PropId =$propId');
+    await db
+        .rawQuery('DELETE FROM ${Constants.areaDetails} WHERE PropId =$propId');
+    await db.rawQuery(
+        'DELETE FROM ${Constants.occupancyDetails} WHERE PropId =$propId');
+    await db.rawQuery(
+        'DELETE FROM ${Constants.boundaryDetails} WHERE PropId =$propId');
+    await db.rawQuery(
+        'DELETE FROM ${Constants.measurementSheet} WHERE PropId =$propId');
+    await db.rawQuery(
+        'DELETE FROM ${Constants.stageCalculator} WHERE PropId =$propId');
+    await db.rawQuery(
+        'DELETE FROM ${Constants.criticalComment} WHERE PropId =$propId');
+    await db
+        .rawQuery('DELETE FROM ${Constants.locationMap} WHERE PropId =$propId');
+    await db.rawQuery(
+        'DELETE FROM ${Constants.propertyPlan} WHERE PropId =$propId');
+    await db
+        .rawQuery('DELETE FROM ${Constants.photograph} WHERE PropId =$propId');
+
+    alertService.successToast(Constants.apiSuccessMessage);
+    onUpload(true);
   }
 
   removeNull(value) {

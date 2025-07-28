@@ -55,7 +55,7 @@ class TableScripts {
       ColonyName TEXT, 
       Priority TEXT, 
       Status TEXT, 
-      SpecialInstruction TEXT, 
+      SpecialInstruction TEXT,
       SyncStatus TEXT
     )''';
 

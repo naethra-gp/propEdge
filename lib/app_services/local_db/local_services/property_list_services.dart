@@ -43,6 +43,20 @@ class PropertyListService {
     });
   }
 
+  // updateLocalStatus(List request) async {
+  //   final db = await DatabaseServices.instance.database;
+  //   // return await db.rawUpdate(
+  //   //     "UPDATE ${Constants.propertyList} SET Status = ? WHERE PropId = ?", request);
+  //   try {
+  //     int count = await db.rawUpdate(
+  //         "UPDATE ${Constants.propertyList} SET Status = ?, SyncStatus = ?, PlLatitude = ?, PlLongitude = ? WHERE PropId = ?",
+  //         request);
+  //     return count;
+  //   } catch (e) {
+  //     return "error -> $e";
+  //   }
+  // }
+
   updateLocalStatus(List request) async {
     final db = await DatabaseServices.instance.database;
     // return await db.rawUpdate(
@@ -66,6 +80,12 @@ class PropertyListService {
     final db = await DatabaseServices.instance.database;
     return await db.rawQuery(
         "SELECT * FROM ${Constants.propertyList} WHERE SyncStatus = 'N'");
+  }
+
+  readByCompCount() async {
+    final db = await DatabaseServices.instance.database;
+    return await db.rawQuery(
+        "SELECT * FROM ${Constants.propertyList} WHERE SyncStatus = 'N' AND Status = 'Completed'");
   }
 
   deleteRecord(List request) async {

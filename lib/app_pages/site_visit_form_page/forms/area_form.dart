@@ -9,9 +9,10 @@ import 'package:prop_edge/app_pages/site_visit_form_page/forms/form_manager/form
 import 'package:prop_edge/app_services/local_db/local_services/area_services.dart';
 import 'package:prop_edge/app_services/local_db/local_services/dropdown_services.dart';
 import 'package:prop_edge/app_theme/custom_theme.dart';
+import 'package:prop_edge/app_utils/alert_service.dart';
 import 'package:prop_edge/app_utils/form/text_form_widget.dart';
 
-import '../../../app_utils/alert_service.dart';
+import '../../../app_utils/alert_service2.dart';
 import '../../../app_utils/app/app_button_widget.dart';
 import '../../../app_utils/form/custom_single_dropdown.dart';
 
@@ -408,7 +409,7 @@ class _AreaFormState extends State<AreaForm> {
 
               /// Width of Approach Road - Field
               CustomTextFormField(
-                title: 'Width of Approach Road',
+                title: 'Width of Approach Road (in Meters)',
                 controller: widthOfApproach,
                 keyboardType: TextInputType.number,
                 validator: (value) {
@@ -623,6 +624,10 @@ class _AreaFormState extends State<AreaForm> {
         'distance': TextEditingController(),
       };
     }
+    // String distanceLabel = 'Distance';
+    // if (checkboxId == 968 || checkboxId == 969) {
+    //   distanceLabel = 'Distance (in Km)';
+    // }
     return [
       Align(
         alignment: Alignment.centerLeft,
@@ -651,21 +656,20 @@ class _AreaFormState extends State<AreaForm> {
           const SizedBox(width: 10),
           Expanded(
               child: CustomTextFormField(
-            title: 'Distance',
+            title: 'Distance (in Km)',
             keyboardType: TextInputType.number,
             required: selected,
-            maxLength: 3,
             controller: transportControllers[checkboxId]!['distance'],
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly, // ✅ Only digits
-              LengthLimitingTextInputFormatter(2), // ✅ Max 6 digits
-            ],
+            // inputFormatters: [
+            //   FilteringTextInputFormatter.allow(
+            //       RegExp(r'^\d{0,2}(\.\d{0,2})?$')),
+            // ],
             validator: (value) {
-              if (value == null || value.toString().isEmpty || !selected) {
-                return 'Mandatory Field!';
-              }
-              if (!RegExp(r'^[1-9][0-9]?$|^0[1-9]$').hasMatch(value)) {
-                return 'Enter a valid number (1-99)';
+              if (value != null && value.toString().isNotEmpty) {
+                RegExp regex = RegExp(r'^\d{1,5}(\.\d{1,2})?$');
+                if (!regex.hasMatch(value)) {
+                  return 'Enter the valid Distance';
+                }
               }
               return null;
             },
@@ -738,10 +742,10 @@ class _AreaFormState extends State<AreaForm> {
     var updated = await areaServices.updateLocalSync(request);
 
     if (updated == 1) {
-      await alertService.successToast("Area details saved successfully.");
+      alertService.successToast("Area details saved successfully.");
       widget.buttonClicked();
     } else {
-      await alertService.errorToast("Area details saved failed!");
+      alertService.errorToast("Area details saved failed!");
     }
   }
 }
