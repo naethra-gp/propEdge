@@ -3,8 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:prop_edge/app_utils/alert_service.dart';
 
-import '../../../app_utils/alert_service2.dart';
-
 class DeviceWidget extends StatelessWidget {
   final TextEditingController controller;
   final Function(String value) onSaved;
