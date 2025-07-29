@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prop_edge/app_services/local_db/local_services/tracking_service.dart';
 import 'package:intl/intl.dart';
-import 'package:prop_edge/app_utils/alert_service2.dart';
 import 'package:prop_edge/app_utils/app/app_bar.dart';
 
 class DBTrackData extends StatefulWidget {

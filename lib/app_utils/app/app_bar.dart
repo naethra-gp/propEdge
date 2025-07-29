@@ -2,14 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:prop_edge/app_utils/alert_service.dart';
 import 'package:prop_edge/location_service.dart';
-// import 'package:prop_edge/app_utils/app/location_service.dart';
-import '../../app_config/app_constants.dart';
-import '../../app_services/local_db/db/database_services.dart';
-import '../../app_services/local_db/local_services/tracking_service.dart';
-import '../../app_services/site_visit_service.dart';
 import '../../app_services/user_service.dart';
 import '../../app_storage/secure_storage.dart';
-import '../alert_service2.dart';
 
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final String title;

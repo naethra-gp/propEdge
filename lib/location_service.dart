@@ -1,6 +1,4 @@
 import 'dart:async';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -23,10 +21,7 @@ class LocationService {
   Location get location => _location;
   final AlertService _alertService = AlertService();
   final TrackingServices _trackingServices = TrackingServices();
-  final BoxStorage _boxStorage = BoxStorage();
   bool isTrackingPaused = false;
-  DateTime _lastUpdate = DateTime.now().subtract(const Duration(minutes: 1));
-  bool _isSaving = false;
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   LogService logService = LogService();
   CommonFunctions commonFunctions = CommonFunctions();
@@ -202,9 +197,6 @@ class LocationService {
       commonFunctions.logToFile('----->Current Location $currentLocation');
     }
 
-    _lastUpdate = DateTime.now().subtract(const Duration(minutes: 1));
-    _isSaving = false;
-
     // Schedule auto-stop at 11 PM
     _scheduleAutoStop();
 
@@ -226,7 +218,6 @@ class LocationService {
   bool isTripInTrackingState() {
     debugPrint('--> isTripStatecalled');
     BoxStorage boxStorage = BoxStorage();
-    String todayDate = DateTime.now().toString().substring(0, 11);
     List<String> startTripList = boxStorage.get('start_trip_date') ?? [];
     List<String> endTripList = boxStorage.get('end_trip_date') ?? [];
 
@@ -248,7 +239,6 @@ class LocationService {
   Future<void> uploadDataBydate() async {
     // Initialize services
     BoxStorage secureStorage = BoxStorage();
-    AlertService alertService = AlertService();
     TrackingServices trackingServices = TrackingServices();
     SiteVisitService siteVisitService = SiteVisitService();
 
@@ -297,7 +287,7 @@ class LocationService {
             },
           };
 
-          debugPrint('-----> group by date : ${groupedByDate}');
+          debugPrint('-----> group by date : $groupedByDate');
 
           debugPrint('---> Sending Location Tracking Params: $params');
 

@@ -9,7 +9,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:location/location.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:prop_edge/app_storage/secure_storage.dart';
-import 'package:prop_edge/app_utils/alert_service2.dart';
 import 'package:prop_edge/app_utils/alert_service.dart';
 import 'package:prop_edge/app_utils/app/logger.dart';
 import 'package:prop_edge/location_service.dart';

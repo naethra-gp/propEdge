@@ -42,7 +42,6 @@ class _UploadFormState extends State<UploadForm> {
   List<Map<String, dynamic>> _locationPhotos = [];
   List<Map<String, dynamic>> _propertyPlanPhotos = [];
   List<Map<String, dynamic>> _photographPhotos = [];
-  bool _validURL = false;
 
   CustomerServices customerServices = CustomerServices();
   PropertyDetailsServices propertyDetailsServices = PropertyDetailsServices();
@@ -158,9 +157,6 @@ class _UploadFormState extends State<UploadForm> {
         break;
       case 2:
         _propertyPlanPhotos = await _planService.read(widget.propId);
-        if (_propertyPlanPhotos.isNotEmpty) {
-          _validURL = Uri.parse(_propertyPlanPhotos[0]['ImagePath']).isAbsolute;
-        }
         break;
       case 3:
         _photographPhotos = await _photographService.read(widget.propId);

@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:logger/logger.dart';
-import 'package:prop_edge/app_services/local_db/local_services/local_services.dart';
 import 'package:prop_edge/app_utils/app/common_functions.dart';
 
 class LogService {
